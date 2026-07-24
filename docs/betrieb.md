@@ -4,20 +4,22 @@
 
 Jede Claude-Code-Session in diesem Repo wird durch die `CLAUDE.md` automatisch zum **Manager-Agent**. Der Manager delegiert an die Spezial-Agents (`.claude/agents/`), protokolliert alles in Supabase und eskaliert nur wichtige Entscheidungen.
 
-## Heartbeat (täglicher Report)
+## Ziel-Engine & Arbeits-Takt (Heartbeat)
 
-- **Zeitplan:** täglich 07:00 Schweizer Sommerzeit (05:00 UTC). Hinweis: Der Zeitplan ist fix in UTC — nach der Umstellung auf Winterzeit läuft der Report um 06:00 Lokalzeit; bei Bedarf die Routine auf `0 6 * * *` UTC ändern.
-- **Mechanik:** Eine geplante Routine («Heartbeat swissROI») startet täglich eine frische Session in dieser Umgebung und führt das Skill `/heartbeat` aus.
-- **Inhalt:** Token-Verbrauch (Schätzung), Läufe pro Agent, Fehler, hängende Läufe, offene Entscheidungen, Content-Pipeline, Empfehlungen.
-- **Ablage:** `heartbeat_reports` (ein Report pro Tag, Upsert). Zusätzlich Benachrichtigung per Push/E-Mail, wenn der Lauf etwas Nennenswertes ergab.
-- **Manuell:** In jeder Session `/heartbeat` eingeben.
-- **Verwalten:** Die Routine kann in einer Session per `list_triggers` / `update_trigger` / `delete_trigger` (claude-code-remote MCP) angepasst, pausiert oder gelöscht werden — einfach den Manager darum bitten.
+Das System arbeitet zielgesteuert:
 
-## Team-Dashboard (visuell)
+1. **Ziel setzen:** Dem Manager sagen «Neues Ziel: …». Er legt es in `goals` an und zerlegt es in Aufgaben (`tasks`), je mit zuständigem Agent.
+2. **Arbeits-Takt:** Täglich 07:00 Schweizer Sommerzeit (05:00 UTC; nach Umstellung auf Winterzeit = 06:00 Lokalzeit, bei Bedarf Routine auf `0 6 * * *` ändern) startet die Routine «Heartbeat swissROI» eine frische Session und führt `/heartbeat` aus: aktive Ziele prüfen → wichtigste Aufgaben (max. 3 Delegate) abarbeiten → Kurz-Report in `heartbeat_reports`.
+3. **Spar-Modus:** Ohne aktive Ziele bricht der Takt nach einer Mini-Abfrage sofort ab — kein Leerlauf-Verbrauch.
+4. **Eskalation bleibt:** Geld/Publikation/Löschen/Strategie landet als offene Entscheidung in `decisions` (sichtbar im Dashboard), nicht in der Ausführung.
+5. **Manuell:** In jeder Session `/heartbeat` eingeben. Routine verwalten (Zeit ändern, pausieren): einfach den Manager bitten (`update_trigger`).
 
-- **URL:** https://claude.ai/code/artifact/805a14b3-1dba-4ce4-ad99-65ae574c3d6a (privat, nur für den Nutzer sichtbar; auch auffindbar unter claude.ai/code/artifacts)
-- **Inhalt:** Alle Agents als Karten (Status, Spezialgebiete, letzte Einsätze), das gespeicherte Wissen (Second Brain) mit Eintragszahlen und eine Kurzanleitung.
-- **Aktualisieren:** Das Dashboard ist eine Momentaufnahme. Auf Zuruf («Aktualisiere das Dashboard») holt der Manager die frischen Zahlen aus Supabase und veröffentlicht die Seite **unter derselben URL** neu — dazu beim Artifact-Tool die obige URL als `url`-Parameter übergeben.
+## Live-Dashboard
+
+- **Was:** Supabase Edge Function `dashboard` — wird bei jedem Aufruf direkt aus der Datenbank erzeugt: Ziele + Fortschritt, offene Entscheidungen, letzte Agent-Einsätze, Second Brain (Keywords, Content, Reports), Token-Schätzungen. **Immer live, null Token-Kosten pro Ansicht.** Seite lädt alle 5 Minuten automatisch neu.
+- **Adresse:** `https://ahrammvkqgpmagyfggmi.supabase.co/functions/v1/dashboard?key=<dashboard_key>` — der Schlüssel steht in der Tabelle `settings` (`dashboard_key`) und gehört **nicht** ins Repo. Schlüssel verloren? Den Manager fragen, er liest ihn aus `settings` bzw. rotiert ihn.
+- **Code:** `supabase/functions/dashboard/index.ts` (Änderungen dort committen und per `deploy_edge_function` neu deployen).
+- Das frühere statische Artifact-Dashboard (claude.ai/code/artifacts) ist durch diese Live-Version ersetzt.
 
 ## Token-Verbrauch
 

@@ -25,13 +25,33 @@ Unabhängige Aufgaben parallel starten (mehrere Agent-Aufrufe in einem Block). E
 
 Tabellen (Schema in `supabase/migrations/`):
 
+- `goals` — Ziele des Nutzers: title, status (`aktiv`/`pausiert`/`erreicht`/`verworfen`), priority (1 = höchste)
+- `tasks` — Aufgaben-Backlog pro Ziel: agent, title, status (`offen`/`in_arbeit`/`erledigt`/`blockiert`), result_summary
 - `agent_runs` — jedes Delegat: agent, task, status (`running`/`done`/`failed`), result_summary, Token-Schätzungen
 - `decisions` — Entscheidungen: topic, description, options, status (`offen`/`entschieden`/`verworfen`), decision
 - `heartbeat_reports` — ein Report pro Tag (report_date ist unique)
 - `content_items` — Content-Pipeline: status `entwurf` → `review` → `freigegeben` → `publiziert`
 - `seo_keywords` — Keyword-Daten aus Semrush
+- `settings` — interne Einstellungen (z. B. `dashboard_key`) — **niemals ins Repo oder in Chats mit Dritten**
 
 Supabase-Tools bei Bedarf via ToolSearch laden (`mcp__Supabase__execute_sql` etc.). Falls das Projekt pausiert ist (`INACTIVE`): mit `restore_project` reaktivieren und 1–2 Minuten warten.
+
+## Ziel-Engine
+
+Das System arbeitet **zielgesteuert**: Der Nutzer gibt Ziele vor, du zerlegst sie in Aufgaben und die Agents arbeiten sie ab.
+
+- Nennt der Nutzer ein Ziel («Neues Ziel: …»): Zeile in `goals` anlegen, in 3–7 Aufgaben zerlegen (`tasks`, je mit zuständigem Agent), kurz bestätigen.
+- Der tägliche Arbeits-Takt (07:00, `/heartbeat`) arbeitet die wichtigsten offenen Aufgaben automatisch ab — max. 3 Delegate pro Takt, ohne aktive Ziele bricht er sofort ab.
+- Fortschritt und Wissen sind jederzeit im **Live-Dashboard** sichtbar (Supabase Edge Function `dashboard`; Adresse mit Schlüssel steht in `settings.dashboard_key` — Schlüssel niemals committen).
+
+## Token-Effizienz
+
+Maximale Ergebnisse, minimaler Verbrauch:
+
+1. **Second Brain zuerst:** Vor jeder Recherche prüfen, ob die Antwort schon in Supabase liegt (`seo_keywords`, `content_items`, frühere `agent_runs.result_summary`). Nichts doppelt recherchieren.
+2. **Eng delegieren:** Agents bekommen einen präzisen Auftrag inkl. vorhandener Daten — nicht «recherchier mal alles».
+3. **Kein Leerlauf:** Ohne aktive Ziele keine Agent-Läufe. Status-Fragen beantwortest du selbst per SQL statt einen Agent zu starten; für die reine Übersicht auf das Live-Dashboard verweisen (kostet null Tokens).
+4. **Kleine Modelle für Mechanik:** Für rein mechanische Delegate (Daten kopieren, formatieren) beim Agent-Tool `model: "haiku"` setzen.
 
 ## Token-Protokoll
 
@@ -53,9 +73,9 @@ Exakte Token-Zahlen sind aus der Session nicht auslesbar — protokolliere **Sch
 
 Content wird immer erst als `entwurf` in `content_items` gespeichert; `publiziert` nur nach expliziter Freigabe des Nutzers.
 
-## Heartbeat
+## Arbeits-Takt (Heartbeat)
 
-Täglicher Report um 07:00 Schweizer Zeit über eine geplante Routine (läuft als frische Session, führt `/heartbeat` aus). Manuell jederzeit mit `/heartbeat` auslösbar. Details: `docs/betrieb.md`.
+Täglich 07:00 Schweizer Zeit über eine geplante Routine (frische Session, führt `/heartbeat` aus): prüft aktive Ziele, arbeitet die wichtigsten Aufgaben ab, schreibt einen Kurz-Report. Ohne aktive Ziele: sofortiger Spar-Abbruch. Manuell jederzeit mit `/heartbeat`. Details: `docs/betrieb.md`.
 
 ## Git
 
