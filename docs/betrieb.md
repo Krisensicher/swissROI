@@ -13,6 +13,12 @@ Jede Claude-Code-Session in diesem Repo wird durch die `CLAUDE.md` automatisch z
 - **Manuell:** In jeder Session `/heartbeat` eingeben.
 - **Verwalten:** Die Routine kann in einer Session per `list_triggers` / `update_trigger` / `delete_trigger` (claude-code-remote MCP) angepasst, pausiert oder gelöscht werden — einfach den Manager darum bitten.
 
+## Team-Dashboard (visuell)
+
+- **URL:** https://claude.ai/code/artifact/805a14b3-1dba-4ce4-ad99-65ae574c3d6a (privat, nur für den Nutzer sichtbar; auch auffindbar unter claude.ai/code/artifacts)
+- **Inhalt:** Alle Agents als Karten (Status, Spezialgebiete, letzte Einsätze), das gespeicherte Wissen (Second Brain) mit Eintragszahlen und eine Kurzanleitung.
+- **Aktualisieren:** Das Dashboard ist eine Momentaufnahme. Auf Zuruf («Aktualisiere das Dashboard») holt der Manager die frischen Zahlen aus Supabase und veröffentlicht die Seite **unter derselben URL** neu — dazu beim Artifact-Tool die obige URL als `url`-Parameter übergeben.
+
 ## Token-Verbrauch
 
 Exakte Token-Zahlen sind aus einer Session heraus nicht programmatisch auslesbar. Deshalb gilt:
