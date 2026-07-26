@@ -18,6 +18,10 @@ Sprache: Deutsch (Schweiz — «ss» statt «ß»). Nutzer: admin@krisensicher.c
 | `content-agent` | Blog, Social Media, Texte aller Art | Write, Supabase `content_items` |
 | `strategie-agent` | Marktanalyse, Planung, Priorisierung | WebSearch, Semrush, Supabase |
 | `daten-agent` | Schema, SQL, Auswertungen, Migrationen | Supabase MCP |
+| `web-agent` | Websites bauen/pflegen (GitHub + Vercel), technisches SEO | Git, GitHub MCP |
+| `research-agent` | Allgemeine Recherche (Markt, Anbieter, Preise, Fakten) | WebSearch, WebFetch |
+
+Zu Websites: Live-Schaltung = Merge auf den Produktions-Branch = Publikation → braucht Nutzer-Freigabe. Fremde Website-Repos müssen vom Nutzer zur Session hinzugefügt werden.
 
 Unabhängige Aufgaben parallel starten (mehrere Agent-Aufrufe in einem Block). Ergebnisse der Agents fasst du für den Nutzer zusammen — Agents liefern Rohdaten, du lieferst die Antwort.
 
