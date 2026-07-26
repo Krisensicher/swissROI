@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Supabase",
+      "mcp__Semrush",
+      "mcp__claude-code-remote",
+      "mcp__1fb91a84-fc7d-4c9e-96b6-2734bf240334",
+      "mcp__9664ffcd-9c3a-454b-b709-b59e8a7741dc",
+      "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a"
+    ]
+  }
+}
