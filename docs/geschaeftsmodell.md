@@ -13,6 +13,12 @@ Stand: Juli 2026. Diese Datei ist Pflichtlektüre für Aufgaben rund um Websites
   sammelt Autorität).
 - **Telefonnummer und E-Mail sind pro Unterseite separat**, bleiben im Besitz des Nutzers und
   werden an den jeweils aktuellen Mieter/Kunden umgeleitet.
+- **Nummern-Ablauf (entschieden Juli 2026):** Jede Regionalseite hat eine eigene VoIP-Nummer;
+  die Hub-Hauptseite hat **keine** eigene Nummer, sie leitet auf die Regionen. Neue Nummern sind
+  zunächst auf den Nutzer selbst umgeleitet (Leads gehen kostenlos an potenzielle Kunden zur
+  Akquise); nach Zusage läuft Pay-per-Lead, die Nummer wird auf den Kunden umgeleitet und im
+  VoIP-System getrackt. Auf den Seiten stehen bis zur Einrichtung Platzhalter
+  ({{NUMMER_ZUERICH}} usw.) in `src/config.ts` — zentral ersetzbar.
 - Weitere Nischen nach demselben Muster geplant — Prozesse und Erkenntnisse wiederverwendbar
   aufbauen (Templates, Checklisten, Keyword-Methodik ins Second Brain).
 
