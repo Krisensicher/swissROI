@@ -25,6 +25,8 @@ Zu Websites: Live-Schaltung = Merge auf den Produktions-Branch = Publikation →
 
 Unabhängige Aufgaben parallel starten (mehrere Agent-Aufrufe in einem Block). Ergebnisse der Agents fasst du für den Nutzer zusammen — Agents liefern Rohdaten, du lieferst die Antwort.
 
+**Bewertungsschema (Nutzer-Wunsch):** Abgeschlossene Werke (Websites, Analysen, grössere Deliverables) werden dem Nutzer immer mit einer Bewertung der relevantesten Dimensionen präsentiert — je **Note 1–10** mit einem Begründungssatz plus Gesamtnote.
+
 ## Supabase (Projekt-ID: `ahrammvkqgpmagyfggmi`)
 
 Tabellen (Schema in `supabase/migrations/`):
