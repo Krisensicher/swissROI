@@ -16,9 +16,12 @@ const AGENT_COLORS: Record<string, string> = {
   "daten-agent": "#2f7d4f",
 };
 
+// Ausgabe ist XHTML (siehe unten) — esc muss darum auch XML-unzulässige Steuerzeichen entfernen.
 const esc = (s: unknown) =>
-  String(s ?? "").replace(/[&<>"']/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+  String(s ?? "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+    .replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 
 const fmtDate = (s: string | null) =>
   s ? new Date(s).toLocaleString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
@@ -53,7 +56,7 @@ Deno.serve(async (req: Request) => {
   const activeGoals = g.filter((x) => x.status === "aktiv");
 
   const goalRows = activeGoals.length === 0
-    ? `<p class="empty">Keine aktiven Ziele. Gib dem Manager ein Ziel — z.&nbsp;B. «Neues Ziel: 100 relevante Keywords aufbauen» — und der tägliche Takt arbeitet automatisch daran.</p>`
+    ? `<p class="empty">Keine aktiven Ziele. Gib dem Manager ein Ziel — z.&#160;B. «Neues Ziel: 100 relevante Keywords aufbauen» — und der tägliche Takt arbeitet automatisch daran.</p>`
     : activeGoals.map((goal) => {
       const gt = t.filter((x) => x.goal_id === goal.id);
       const done = gt.filter((x) => x.status === "erledigt").length;
@@ -78,18 +81,21 @@ Deno.serve(async (req: Request) => {
 
   const decisionRows = d.length === 0
     ? `<p class="empty">Keine offenen Entscheidungen — nichts wartet auf dich.</p>`
-    : `<ul class="dec">${d.map((x) => `<li><strong>${esc(x.topic)}</strong><br>${esc(x.description)}${x.options ? `<div class="sub">Optionen: ${esc(x.options)}</div>` : ""}</li>`).join("")}</ul>`;
+    : `<ul class="dec">${d.map((x) => `<li><strong>${esc(x.topic)}</strong><br/>${esc(x.description)}${x.options ? `<div class="sub">Optionen: ${esc(x.options)}</div>` : ""}</li>`).join("")}</ul>`;
 
   const kwRows = k.map((x) => `<tr><td>${esc(x.keyword)}</td><td>${esc(x.database)}</td><td class="num">${x.volume ?? "—"}</td><td class="num">${x.difficulty ?? "—"}</td></tr>`).join("");
   const contentRows = c.map((x) => `<tr><td>${esc(x.title)}</td><td>${esc(x.type)}</td><td><span class="pill">${esc(x.status)}</span></td><td class="num">${fmtDate(x.created_at)}</td></tr>`).join("");
   const hbRows = h.map((x) => `<tr><td>${esc(x.report_date)}</td><td class="num">${x.runs_total}</td><td class="num">${x.runs_failed}</td><td class="num">${fmtTokens((x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0))}</td></tr>`).join("");
 
-  const html = `<!doctype html>
-<html lang="de">
+  // XHTML statt HTML: Supabase Edge Functions schreiben text/html bei GET zwingend
+  // auf text/plain um (Browser zeigt Quelltext) — application/xhtml+xml nicht.
+  // Das Markup muss darum wohlgeformtes XML bleiben (Tags schliessen, nur XML-Entities).
+  const html = `<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="300">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta http-equiv="refresh" content="300"/>
 <title>swissROI — Live-Dashboard</title>
 <style>
   :root { --paper:#fafaf8; --ink:#1a1a1c; --soft:#55555c; --line:#e3e2dd; --card:#fff; --accent:#c8281e; --chip:#f1f0ec; --ok:#2f7d4f; --warn:#8a6d1f; }
@@ -183,5 +189,5 @@ Deno.serve(async (req: Request) => {
 </body>
 </html>`;
 
-  return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+  return new Response(html, { headers: { "Content-Type": "application/xhtml+xml; charset=utf-8" } });
 });
