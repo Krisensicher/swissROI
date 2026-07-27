@@ -25,6 +25,11 @@ Stand: Juli 2026. Diese Datei ist Pflichtlektüre für Aufgaben rund um Websites
 ## Feste Leitplanken
 
 1. **Nur Deutschschweiz, nur Deutsch** (Schweizer Hochdeutsch, «ss» statt «ß»).
+1a. **Einzugsgebiets-Regel (entschieden Juli 2026):** Regionen werden nach dem Ort mit der
+   Suchnachfrage benannt und als zusammenhängendes Gebiet geschnitten, in dem ein lokaler
+   Betrieb realistisch in **~30 Minuten Fahrzeit** vor Ort ist. Orte darüber hinaus: weglassen
+   oder «auf Anfrage». Die 30 Minuten sind interne Planungsregel — **niemals** als Zusage auf
+   die Website schreiben.
 2. **SEO-Kannibalisierung vermeiden:** Die Anzahl der Regional-Unterseiten ist bewusst
    **limitiert** und muss datenbasiert festgelegt werden (Suchvolumen ÷ Konkurrenz je Region,
    Überschneidung der Suchintentionen mit dem Hub und untereinander prüfen).
