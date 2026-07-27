@@ -46,7 +46,7 @@ Das System arbeitet **zielgesteuert**: Der Nutzer gibt Ziele vor, du zerlegst si
 
 - Nennt der Nutzer ein Ziel («Neues Ziel: …»): Zeile in `goals` anlegen, in 3–7 Aufgaben zerlegen (`tasks`, je mit zuständigem Agent), kurz bestätigen.
 - Der tägliche Arbeits-Takt (07:00, `/heartbeat`) arbeitet die wichtigsten offenen Aufgaben automatisch ab — max. 3 Delegate pro Takt, ohne aktive Ziele bricht er sofort ab.
-- Fortschritt und Wissen sind jederzeit im **Live-Dashboard** sichtbar (Supabase Edge Function `dashboard`; Adresse mit Schlüssel steht in `settings.dashboard_key` — Schlüssel niemals committen).
+- Fortschritt und Wissen sind jederzeit im **Live-Dashboard** sichtbar: lokale Viewer-Datei beim Nutzer (Vorlage: `docs/dashboard-viewer.html`), die ihre Daten von der Edge Function `dashboard` als JSON holt (Schlüssel steht in `settings.dashboard_key` — niemals committen). Details: `docs/betrieb.md`.
 
 ## Token-Effizienz
 
