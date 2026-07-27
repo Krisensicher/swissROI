@@ -145,7 +145,34 @@ Title: «Wasserschaden: Die ersten 30 Minuten richtig handeln | Checkliste» · 
 | wasserschaden | 590 | 21 | — |
 | wasserschaden notfall | 110 | 7 | — |
 
-**Ratgeber-Übersicht `/ratgeber/`** — reine Verteilerseite (verlinkt die drei Artikel),
+**Ratgeber `/ratgeber/rohrreinigung`** — Status: **Entwurf**
+
+| Ziel-Keyword | Volumen/Monat | Schwierigkeit | Position heute |
+|---|---:|---:|---:|
+| rohrreinigung | 1'900 | 26 | — |
+| abflussreinigung | 110 | 28 | — |
+
+**Ratgeber `/ratgeber/boiler-entkalken`** — Status: **Entwurf**
+
+| Ziel-Keyword | Volumen/Monat | Schwierigkeit | Position heute |
+|---|---:|---:|---:|
+| boiler entkalken | 720 | 21 | — |
+| boiler defekt | 20 | — | — |
+
+**Ratgeber `/ratgeber/sanitaer-notdienst-kosten`** — Status: **Entwurf**
+
+| Ziel-Keyword | Volumen/Monat | Schwierigkeit | Position heute |
+|---|---:|---:|---:|
+| sanitär 24 | 590 | 20 | — |
+| sanitär notdienst (informational) | 170 | 12 | — |
+
+**Ratgeber `/ratgeber/kanalreinigung-grundleitung`** — Status: **Entwurf**
+
+| Ziel-Keyword | Volumen/Monat | Schwierigkeit | Position heute |
+|---|---:|---:|---:|
+| kanalreinigung | 1'300 | 38 | — |
+
+**Ratgeber-Übersicht `/ratgeber/`** — reine Verteilerseite (verlinkt die sieben Artikel),
 kein eigenes Ziel-Keyword. Status: **Entwurf**.
 
 ### Reserve — noch keiner Seite zugeteilt (Ideen für Ausbau)
@@ -156,9 +183,6 @@ erst zuteilen, wenn die Seite existiert):
 
 | Keyword | Volumen/Monat | Schwierigkeit | Mögliche künftige Seite |
 |---|---:|---:|---|
-| rohrreinigung | 1'900 | 26 | eigener Ratgeber oder Leistungsseite «Rohrreinigung» |
-| kanalreinigung | 1'300 | 38 | dito (gleicher Cluster wie Rohrreinigung) |
-| boiler entkalken | 720 | 21 | Ratgeber «Boiler entkalken/defekt» (+ boiler defekt, 20) |
 | rohrreinigung zürich / kanalreinigung zürich | je 480 | 34/35 | Ausbau `/zuerich` oder eigene Leistungsseite |
 | sanitär st. gallen | 390 | 17 | mögliche Regionalseite Ostschweiz (+ rohrreinigung st. gallen, 40) |
 | sanitär schaffhausen | 390 | 32 | Beobachten |
