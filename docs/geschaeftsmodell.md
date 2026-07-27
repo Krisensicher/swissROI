@@ -11,6 +11,14 @@ Stand: Juli 2026. Diese Datei ist Pflichtlektüre für Aufgaben rund um Websites
   Unterseiten** für die erfolgversprechendsten Regionen.
 - Erste Nische: **Sanitär-Notdienst 24/7**, Hub: **sanitaer-notdienst.ch** (existiert bereits,
   sammelt Autorität).
+- **Nischen-Pipeline (entschieden Juli 2026):** Nische 2 = **Wasserschadensanierung** (volles
+  Hub+Regional-Modell; Abgrenzung: wasserrohrbruch bleibt beim Sanitär-Hub; Hagel/Sturm später
+  als Silo andockbar). Zusatz: **Kellerabdichtung** als schlanker Hub ohne Regionalseiten
+  (White-Space). Zukunftswette: **Wärmepumpen-Notdienst** — nur Domain gesichert, Bau erst bei
+  messbarer Nachfrage. Verworfen: Abbruch (keine Anrufe), Schimmel (DIY-Intent), Flachdach
+  (kein Volumen); Kanalsanierung kein eigener Hub (evtl. später Sanitär-Ausbau).
+- **Auftragswert-Regel:** Ø-Auftragswert der Nische ≥ ~3'000 CHF (Durchschnitt — einzelne
+  kleinere Aufträge sind ok, hartes Minimum gilt nicht).
 - **Telefonnummer und E-Mail sind pro Unterseite separat**, bleiben im Besitz des Nutzers und
   werden an den jeweils aktuellen Mieter/Kunden umgeleitet.
 - **Nummern-Ablauf (entschieden Juli 2026):** Jede Regionalseite hat eine eigene VoIP-Nummer;
