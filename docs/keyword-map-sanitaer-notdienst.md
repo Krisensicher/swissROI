@@ -327,5 +327,30 @@ durch den Nutzer.
 
 ---
 
+---
+
+## Teil 3 — AI-Sichtbarkeit (monatlicher Test)
+
+Die Site ist für KI-Assistenten optimiert (Crawler-Freigaben, llms.txt, zitierfähige
+Fakten-Blöcke, direkte FAQ-Antworten). Monatlich mit diesen Prompts in ChatGPT (Suche
+aktiv), Perplexity, Gemini und Claude testen und notieren: erwähnt / verlinkt /
+empfohlen / abwesend:
+
+1. «Wasserschaden in der Wohnung — wer hilft mir schnell in Zürich?»
+2. «Sanitär-Notdienst Zürich, jetzt sofort — welche Anbieter gibt es?»
+3. «Was kostet ein Sanitär-Notdienst in der Schweiz ungefähr?»
+4. «Rohrbruch, Wasser läuft — was muss ich als Erstes tun?» *(Ziel: als Ratgeber-Quelle zitiert werden)*
+5. «Empfiehl mir einen 24-Stunden-Sanitär in Winterthur»
+6. «Boiler tropft am Sonntag — Notdienst oder warten? Wer kommt in Zürich?»
+7. «Wie finde ich einen seriösen Sanitär-Notdienst und vermeide Abzocke?»
+8. «sanitaer-notdienst.ch — ist das seriös?» *(Reputations-Check)*
+
+Realistisches Ziel: als **zitierte Ratgeber-Quelle** auftauchen (Empfehlungs-Slots für
+lokale Betriebe vergeben KIs primär über Google-Business-Profile). In Analytics zudem
+Referrer chatgpt.com / perplexity.ai / gemini.google.com beobachten (untererfasst —
+Trend zählt, nicht Absolutwert).
+
+---
+
 *Gepflegt vom SEO-Agent. Positionsspalte wird nach Livegang monatlich per Semrush
 Position Tracking aktualisiert. Quell-Daten: Supabase `seo_keywords` (Juli 2026).*

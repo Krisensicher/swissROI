@@ -48,3 +48,11 @@ Stand: Juli 2026. Diese Datei ist Pflichtlektüre für Aufgaben rund um Websites
    nachweislich halten kann (z. B. Reaktionszeiten).
 5. Websites maximal auf SEO optimieren — Technik (Ladezeit, strukturierte Daten, interne
    Verlinkung Hub ↔ Unterseiten) gehört immer dazu.
+6. **AI-SEO-Standard (jede Website, ab Juli 2026):** KI-Crawler in robots.txt einzeln erlauben
+   (GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, Claude-User,
+   PerplexityBot, Perplexity-User, Google-Extended, Applebot-Extended); llms.txt; sichtbares
+   «Zuletzt aktualisiert» + dateModified im Schema; FAQ-Antworten beantworten die Frage in den
+   ersten 1–2 Sätzen direkt; zitierfähige Fakten-Blöcke (nummerierte «X Schritte bei …»-Listen,
+   Richtwert-Tabellen mit Quellen-Einordnung); Entitäten byte-identisch (Name/Region/Nummer).
+   Monatliches Monitoring per Test-Prompts (im Keyword-Map-Dokument der Site), keine
+   GEO-Agenturen/Tools kaufen.
