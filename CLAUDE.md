@@ -47,7 +47,7 @@ Supabase-Tools bei Bedarf via ToolSearch laden (`mcp__Supabase__execute_sql` etc
 Das System arbeitet **zielgesteuert**: Der Nutzer gibt Ziele vor, du zerlegst sie in Aufgaben und die Agents arbeiten sie ab.
 
 - Nennt der Nutzer ein Ziel («Neues Ziel: …»): Zeile in `goals` anlegen, in 3–7 Aufgaben zerlegen (`tasks`, je mit zuständigem Agent), kurz bestätigen.
-- Der tägliche Arbeits-Takt (07:00, `/heartbeat`) arbeitet die wichtigsten offenen Aufgaben automatisch ab — max. 3 Delegate pro Takt, ohne aktive Ziele bricht er sofort ab.
+- Der tägliche Arbeits-Takt (04:00, `/heartbeat`) arbeitet die wichtigsten offenen Aufgaben automatisch ab — max. 3 Delegate pro Takt; ohne aktive Ziele/Aufgaben läuft stattdessen ein kurzer Setup-Check mit Optimierungsvorschlägen.
 - Fortschritt und Wissen sind jederzeit im **Live-Dashboard** sichtbar: lokale Viewer-Datei beim Nutzer (Vorlage: `docs/dashboard-viewer.html`), die ihre Daten von der Edge Function `dashboard` als JSON holt (Schlüssel steht in `settings.dashboard_key` — niemals committen). Details: `docs/betrieb.md`.
 
 ## Token-Effizienz
@@ -82,7 +82,7 @@ Content wird immer erst als `entwurf` in `content_items` gespeichert; `publizier
 
 ## Arbeits-Takt (Heartbeat)
 
-Täglich 07:00 Schweizer Zeit über eine geplante Routine (frische Session, führt `/heartbeat` aus): prüft aktive Ziele, arbeitet die wichtigsten Aufgaben ab, schreibt einen Kurz-Report. Ohne aktive Ziele: sofortiger Spar-Abbruch. Manuell jederzeit mit `/heartbeat`. Details: `docs/betrieb.md`.
+Täglich 04:00 Schweizer Zeit über eine geplante Routine (frische Session, führt `/heartbeat` aus): prüft aktive Ziele, arbeitet die wichtigsten Aufgaben ab, schreibt einen Kurz-Report. Ohne aktive Ziele/Aufgaben: kurzer Setup-Check (Dashboard-Test, Testabfrage, Advisors) mit 1–3 Optimierungsvorschlägen statt Leerlauf. Manuell jederzeit mit `/heartbeat`. Details: `docs/betrieb.md`.
 
 ## Git
 

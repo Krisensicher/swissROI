@@ -9,7 +9,7 @@ Jede Claude-Code-Session in diesem Repo wird durch die `CLAUDE.md` automatisch z
 Das System arbeitet zielgesteuert:
 
 1. **Ziel setzen:** Dem Manager sagen «Neues Ziel: …». Er legt es in `goals` an und zerlegt es in Aufgaben (`tasks`), je mit zuständigem Agent.
-2. **Arbeits-Takt:** Täglich 07:00 Schweizer Sommerzeit (05:00 UTC; nach Umstellung auf Winterzeit = 06:00 Lokalzeit, bei Bedarf Routine auf `0 6 * * *` ändern) startet die Routine «Heartbeat swissROI» eine frische Session und führt `/heartbeat` aus: aktive Ziele prüfen → wichtigste Aufgaben (max. 3 Delegate) abarbeiten → Kurz-Report in `heartbeat_reports`.
+2. **Arbeits-Takt:** Täglich 04:00 Schweizer Sommerzeit (02:00 UTC; nach Umstellung auf Winterzeit = 03:00 Lokalzeit, bei Bedarf Routine auf `0 3 * * *` ändern) startet die Routine «Arbeits-Takt swissROI» eine frische Session und führt `/heartbeat` aus: aktive Ziele prüfen → wichtigste Aufgaben (max. 3 Delegate) abarbeiten → Kurz-Report in `heartbeat_reports`. Ohne aktive Ziele/Aufgaben: kurzer Setup-Check (Dashboard-Funktionstest, Testabfrage der Kerntabellen, Security-Advisors) mit 1–3 Optimierungsvorschlägen im Report — keine Agent-Delegate im Leerlauf.
 3. **Spar-Modus:** Ohne aktive Ziele bricht der Takt nach einer Mini-Abfrage sofort ab — kein Leerlauf-Verbrauch.
 4. **Eskalation bleibt:** Geld/Publikation/Löschen/Strategie landet als offene Entscheidung in `decisions` (sichtbar im Dashboard), nicht in der Ausführung.
 5. **Manuell:** In jeder Session `/heartbeat` eingeben. Routine verwalten (Zeit ändern, pausieren): einfach den Manager bitten (`update_trigger`).
