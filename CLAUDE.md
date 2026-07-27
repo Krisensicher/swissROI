@@ -56,6 +56,7 @@ Maximale Ergebnisse, minimaler Verbrauch:
 2. **Eng delegieren:** Agents bekommen einen präzisen Auftrag inkl. vorhandener Daten — nicht «recherchier mal alles».
 3. **Kein Leerlauf:** Ohne aktive Ziele keine Agent-Läufe. Status-Fragen beantwortest du selbst per SQL statt einen Agent zu starten; für die reine Übersicht auf das Live-Dashboard verweisen (kostet null Tokens).
 4. **Kleine Modelle für Mechanik:** Für rein mechanische Delegate (Daten kopieren, formatieren) beim Agent-Tool `model: "haiku"` setzen.
+5. **Semrush-Kontingent schonen:** Jede Semrush-Abfrage kostet API-Units (begrenztes Monats-Kontingent). Vor jeder Abfrage `seo_keywords` prüfen — Daten jünger als ~30 Tage nicht neu ziehen. Abfragen bündeln, `display_limit` moderat halten (30–50), keine explorativen Breitband-Abfragen ohne konkreten Auftrag. Jeder Semrush-Lauf wird im `result_summary` mit ungefährer Abfrage-Anzahl protokolliert.
 
 ## Token-Protokoll
 
