@@ -37,8 +37,9 @@ Ist heute Montag (Europe/Zurich): Zusätzlich zu Schritt 2 einen **unabhängigen
 Kritiker-Review** delegieren (Agent-Tool, `subagent_type: "claude"`, `model: "opus"` —
 bewusst ein anderes Modell als die Erbauer): kritische Prüfung der aktuell wichtigsten
 Website(s) und des Setups (Conversion, SEO-Substanz, Recht, Content, blinde Flecken).
-Funde als Aufgaben ins passende Ziel eintragen (nur umsetzen, was den Leitplanken
-entspricht); Eskalationspflichtiges als `decisions`. Zählt als 1 der max. 3 Delegate.
+Die Top-Funde des Kritikers werden UNGEFILTERT als offene `decisions`-Zeile hinterlegt
+(der Nutzer sieht das Original-Urteil im Dashboard — nicht die Manager-Interpretation);
+umsetzbare Funde zusätzlich als Aufgaben ins passende Ziel. Zählt als 1 der max. 3 Delegate.
 
 ## Schritt 2 — Arbeiten (nur wenn aktive Ziele existieren)
 

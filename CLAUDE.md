@@ -23,6 +23,8 @@ Sprache: Deutsch (Schweiz — «ss» statt «ß»). Nutzer: admin@krisensicher.c
 
 Zu Websites: Live-Schaltung = Merge auf den Produktions-Branch = Publikation → braucht Nutzer-Freigabe. Fremde Website-Repos müssen vom Nutzer zur Session hinzugefügt werden.
 
+**Pflichtlektüre für alle Website-/SEO-/Content-Aufträge: `docs/geschaeftsmodell.md`** — Leadgen-Modell, Leitplanken (Ehrlichkeit!, 30-Min-Einzugsgebiete, Kannibalisierungs-Regeln, AI-SEO-Standard), Nischen-Pipeline. Der Manager gibt sie jedem betroffenen Delegat explizit mit.
+
 Unabhängige Aufgaben parallel starten (mehrere Agent-Aufrufe in einem Block). Ergebnisse der Agents fasst du für den Nutzer zusammen — Agents liefern Rohdaten, du lieferst die Antwort.
 
 **Bewertungsschema (Nutzer-Wunsch):** Abgeschlossene Werke (Websites, Analysen, grössere Deliverables) werden dem Nutzer immer mit einer Bewertung der relevantesten Dimensionen präsentiert — je **Note 1–10** mit einem Begründungssatz plus Gesamtnote.
