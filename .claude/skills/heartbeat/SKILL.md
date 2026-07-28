@@ -31,6 +31,15 @@ Alles direkt per SQL/Tools, kein Spezial-Agent:
 3. **Advisors:** `get_advisors` (security) — neue Warnungen kurz einordnen.
 4. **1–3 Optimierungsvorschläge** ableiten (z. B. hängende runs aufräumen, alte Entwürfe in `content_items`, fehlende Freigaben, Advisor-Funde) und in den Report schreiben. Nur beobachten und vorschlagen — nichts löschen, nichts ändern.
 
+## Schritt 1c — Wöchentliche Qualitätskontrolle (nur montags)
+
+Ist heute Montag (Europe/Zurich): Zusätzlich zu Schritt 2 einen **unabhängigen
+Kritiker-Review** delegieren (Agent-Tool, `subagent_type: "claude"`, `model: "opus"` —
+bewusst ein anderes Modell als die Erbauer): kritische Prüfung der aktuell wichtigsten
+Website(s) und des Setups (Conversion, SEO-Substanz, Recht, Content, blinde Flecken).
+Funde als Aufgaben ins passende Ziel eintragen (nur umsetzen, was den Leitplanken
+entspricht); Eskalationspflichtiges als `decisions`. Zählt als 1 der max. 3 Delegate.
+
 ## Schritt 2 — Arbeiten (nur wenn aktive Ziele existieren)
 
 1. Aktive Ziele + offene Aufgaben laden (`goals` nach priority, zugehörige `tasks`).
