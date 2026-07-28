@@ -29,6 +29,8 @@ Unabhängige Aufgaben parallel starten (mehrere Agent-Aufrufe in einem Block). E
 
 **Bewertungsschema (Nutzer-Wunsch):** Abgeschlossene Werke (Websites, Analysen, grössere Deliverables) werden dem Nutzer immer mit einer Bewertung der relevantesten Dimensionen präsentiert — je **Note 1–10** mit einem Begründungssatz plus Gesamtnote.
 
+**Vorschau-Pflicht (Nutzer-Wunsch):** Jede neu gebaute oder wesentlich geänderte Website wird dem Nutzer **sofort als klickbare Vorschau** präsentiert (Artifact aus dem gebauten dist/, eine Datei mit Hash-Router — Muster: scratchpad preview-build), nicht nur als Screenshot. Bestehende Vorschau-Artifacts beim selben Werk aktualisieren statt neue URLs zu erzeugen.
+
 ## Supabase (Projekt-ID: `ahrammvkqgpmagyfggmi`)
 
 Tabellen (Schema in `supabase/migrations/`):
