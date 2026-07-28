@@ -30,6 +30,32 @@ Stand: Juli 2026. Diese Datei ist Pflichtlektüre für Aufgaben rund um Websites
 - Weitere Nischen nach demselben Muster geplant — Prozesse und Erkenntnisse wiederverwendbar
   aufbauen (Templates, Checklisten, Keyword-Methodik ins Second Brain).
 
+## Nischen-Playbook (Standard ab Nische 4)
+
+Jede neue Nische durchläuft von Anfang an in einem Guss:
+1. **Domain-Vorschläge sofort:** Bereits in der Strategie-Phase 2–3 passende .ch-Domains
+   vorschlagen (exact-match-nah, seriös, frei wirkend) — der Nutzer registriert früh, damit
+   Bau und Livegang nicht auf die Domain warten.
+2. **SEO-Struktur komplett planen, bevor gebaut wird:** Seitenbaum (Hub, Leistungs-/
+   Themenseiten, Regionalseiten nur bei belegtem Volumen), URL-Schema, Intent-Zuordnung je
+   Seite (eine Seite = ein Cluster), interne Verlinkung, Hub-zu-Hub-Brücken.
+3. **Info-Beiträge auf die relevantesten Keywords gehören zum Grundausbau:** Die
+   volumenstärksten informationalen Keywords der Nische werden von Anfang an mit
+   Ratgeber-Artikeln besetzt (zitierfähig nach AI-SEO-Standard) — sie sind Autoritäts- und
+   KI-Sichtbarkeits-Hebel, nicht Nachtrag.
+4. Keyword-Map-Dokument pro Website ab Tag 1, Vorschau-Pflicht, Bewertungsschema.
+
+## Anonymitäts-Entscheid (Nutzer, Juli 2026)
+
+Die Websites laufen bewusst **ohne Firmen-/Standort-Bezug** (keine Betreiber-Firma, kein
+lokales Büro auf den Seiten) — Priorität ist die Eigenständigkeit/Vermietbarkeit jeder
+Website. Der Nutzer akzeptiert die dokumentierten Nachteile bewusst: schwächere
+E-E-A-T-Signale, kein Google Business Profile (Map-Pack bleibt unerreichbar), erschwerte
+Verzeichniseinträge. Konsequenzen für die Agents: keine erfundenen Firmen-/Personen-Angaben
+als Ersatz; Vertrauensarbeit läuft über Inhaltsqualität, Ratgeber-Autorität und ehrliche
+Prozess-Transparenz. Rechtliches Minimum (Impressum/Kontaktweg) bleibt Thema des Nutzers —
+die Seiten-Gerüste dafür existieren und werden mit dem befüllt, was der Nutzer vorgibt.
+
 ## Feste Leitplanken
 
 1. **Nur Deutschschweiz, nur Deutsch** (Schweizer Hochdeutsch, «ss» statt «ß»).
