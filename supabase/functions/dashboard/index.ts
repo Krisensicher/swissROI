@@ -33,11 +33,12 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  const [goals, tasks, runs, decisions, content, keywords, heartbeats] = await Promise.all([
+  const [goals, tasks, runs, decisions, decisionsDone, content, keywords, heartbeats] = await Promise.all([
     supabase.from("goals").select("*").order("priority").order("created_at"),
     supabase.from("tasks").select("*").order("created_at"),
-    supabase.from("agent_runs").select("*").order("started_at", { ascending: false }).limit(15),
+    supabase.from("agent_runs").select("*").order("started_at", { ascending: false }).limit(100),
     supabase.from("decisions").select("*").eq("status", "offen").order("created_at"),
+    supabase.from("decisions").select("*").neq("status", "offen").order("decided_at", { ascending: false, nullsFirst: false }).limit(10),
     supabase.from("content_items").select("id,type,title,status,channel,created_at").order("created_at", { ascending: false }).limit(10),
     supabase.from("seo_keywords").select("keyword,database,volume,difficulty,collected_at").order("collected_at", { ascending: false }).limit(15),
     supabase.from("heartbeat_reports").select("*").order("report_date", { ascending: false }).limit(7),
@@ -49,6 +50,7 @@ Deno.serve(async (req: Request) => {
     tasks: tasks.data ?? [],
     runs: runs.data ?? [],
     decisions: decisions.data ?? [],
+    decisions_entschieden: decisionsDone.data ?? [],
     content: content.data ?? [],
     keywords: keywords.data ?? [],
     heartbeats: heartbeats.data ?? [],
