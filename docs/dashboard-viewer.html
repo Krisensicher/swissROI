@@ -151,7 +151,73 @@
   .cstat b { display:block; font-size:1.15rem; font-variant-numeric:tabular-nums; }
   .cstat span { font-size:.6rem; text-transform:uppercase; letter-spacing:.05em; color:var(--soft); }
 
+  /* ---- Projektmappe (Kachel-Galerie) ---- */
+  .mappe { background:var(--card); border:1px solid var(--line); padding:1rem 1.1rem 1.2rem; margin-bottom:1.2rem; }
+  .mappe > header { display:flex; justify-content:space-between; align-items:baseline; gap:.8rem; flex-wrap:wrap; }
+  .mappe h3 { margin:0; font-size:1.05rem; }
+  .mappe.fertig { border-left:3px solid var(--ok); }
+  .kacheln { display:grid; grid-template-columns:repeat(auto-fill,minmax(205px,1fr)); gap:.6rem; margin-top:.85rem; }
+  .kachel { display:flex; flex-direction:column; gap:.35rem; background:var(--paper); border:1px solid var(--line);
+            border-top:3px solid var(--line); padding:.7rem .8rem .75rem; min-height:118px; text-decoration:none; color:inherit; }
+  a.kachel:hover { border-color:var(--accent); }
+  .kachel h4 { margin:0; font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--soft);
+               display:flex; align-items:center; gap:.4rem; }
+  .kachel .glyph { font-size:1.05rem; }
+  .kachel .inhalt { font-size:.83rem; }
+  .kachel .fuss { margin-top:auto; padding-top:.35rem; font-size:.72rem; color:var(--soft); }
+  .kachel.voll { grid-column:1/-1; border-top-color:var(--accent); background:var(--card); }
+  .kachel.voll h4 { color:var(--accent); font-size:.8rem; }
+  ul.msteine { list-style:none; margin:.25rem 0 0; padding:0;
+               display:grid; grid-template-columns:repeat(auto-fill,minmax(265px,1fr)); gap:.3rem .9rem; }
+  ul.msteine li { font-size:.86rem; display:flex; gap:.45rem; align-items:baseline; }
+  ul.msteine .mk { flex:none; font-weight:700; }
+  ul.msteine li.offen .mk { color:var(--warn); }
+  ul.msteine li.erledigt { color:var(--soft); }
+  ul.msteine li.erledigt .mk { color:var(--ok); }
+  ul.msteine li.erledigt .mt { text-decoration:line-through; }
+  ul.txt { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.25rem; }
+  ul.txt li { font-size:.8rem; }
+  ul.txt button { background:none; border:none; padding:0; font:inherit; font-size:.8rem; color:var(--ink);
+                  text-align:left; cursor:pointer; text-decoration:underline dotted; }
+  ul.txt button:hover { color:var(--accent); }
+
+  /* ---- Statistik (Tagesbalken, gestapelt nach Agent) ---- */
+  .chart { background:var(--card); border:1px solid var(--line); padding:1rem .9rem .7rem; overflow-x:auto; }
+  .saeulen { display:flex; align-items:flex-end; gap:2px; height:220px; min-width:620px; border-bottom:1px solid var(--ink); }
+  .tagsp { flex:1 1 0; min-width:4px; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }
+  .achse { display:flex; gap:2px; min-width:620px; margin-top:.35rem; }
+  .achse span { flex:1 1 0; min-width:4px; font-size:.6rem; color:var(--soft); text-align:center; white-space:nowrap; }
+  .legende { display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:.35rem .9rem; margin-top:1rem; }
+  .legende div { font-size:.78rem; display:flex; align-items:baseline; gap:.4rem; }
+  .legende .lz { margin-left:auto; color:var(--soft); font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* ---- Detail-Overlay ---- */
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:20;
+             display:flex; align-items:flex-start; justify-content:center; padding:2rem 1rem; overflow-y:auto; }
+  .overlay[hidden] { display:none; }
+  .ovbox { background:var(--card); border:1px solid var(--line); max-width:820px; width:100%; padding:1rem 1.3rem 1.6rem; }
+  .ovzu { float:right; background:var(--chip); border:1px solid var(--line); color:var(--ink); font:inherit;
+          font-size:.78rem; font-weight:700; padding:.45rem .8rem; min-height:44px; cursor:pointer; }
+  .ovzu:hover { border-color:var(--accent); color:var(--accent); }
+  .ovbox h3 { margin:.2rem 0 .3rem; font-size:1.1rem; max-width:62ch; }
+  .ovbox .volltext { white-space:pre-wrap; font-size:.88rem; line-height:1.65; margin-top:.9rem; max-width:78ch; }
+
   footer.seite { margin-top:2.5rem; padding-top:.9rem; border-top:1px solid var(--line); font-size:.76rem; color:var(--soft); max-width:78ch; }
+  /* ---- Handy (Touch-Ziele, gestapelte Kacheln) ---- */
+  @media (max-width:560px) {
+    body { padding:1.1rem .8rem 3rem; }
+    nav.menue a { padding:.7rem .7rem .55rem; font-size:.74rem; }
+    .ampeln { grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); }
+    .kacheln, ul.msteine, .spalten, .board, .brain { grid-template-columns:1fr; }
+    .kachel { min-height:auto; }
+    .cstat { grid-template-columns:repeat(2,1fr); }
+    .mappe, .karte, .chart { padding-left:.8rem; padding-right:.8rem; }
+    .overlay { padding:0; }
+    .ovbox { min-height:100vh; }
+    button.antwort, ul.txt button, a.kachel { min-height:44px; }
+    .legende { grid-template-columns:1fr; }
+  }
+
   #toast { position:fixed; left:50%; bottom:1.5rem; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:.82rem; padding:.6rem 1rem; border-radius:4px; opacity:0; pointer-events:none; transition:opacity .25s; max-width:90vw; text-align:center; z-index:9; }
   #toast.zeigen { opacity:1; }
 </style>
@@ -171,6 +237,7 @@
       <a href="#projekte" data-tab="projekte">Projekte</a>
       <a href="#agenten" data-tab="agenten">Agenten<span class="badge" id="agentenBadge" hidden></span></a>
       <a href="#entscheidungen" data-tab="entscheidungen">Entscheidungen</a>
+      <a href="#statistik" data-tab="statistik">Statistik</a>
       <a href="#wissen" data-tab="wissen">Wissen</a>
     </nav>
     <div id="ampeln" class="ampeln"></div>
@@ -245,10 +312,15 @@
   <section class="tab" id="tab-projekte"></section>
   <section class="tab" id="tab-agenten"></section>
   <section class="tab" id="tab-entscheidungen"></section>
+  <section class="tab" id="tab-statistik"></section>
   <section class="tab" id="tab-wissen"></section>
 
   <footer class="seite">Diese Seite holt die Daten bei jedem Aufruf live aus der Agentur-Datenbank (Supabase Edge Function) und verbraucht keine Claude-Tokens. Token-Zahlen sind Schätzungen des Managers auf Basis der letzten 100 Einsätze. Diese Datei und ihren Schlüssel geheim halten.</footer>
 </div>
+<div class="overlay" id="overlay" hidden><div class="ovbox">
+  <button class="ovzu" type="button" id="ovzu">✕ Schliessen</button>
+  <div id="ovinhalt"></div>
+</div></div>
 <div id="toast"></div>
 
 <script>
@@ -256,7 +328,7 @@
 // Im Repo steht nur der Platzhalter; die persönliche Kopie trägt den echten Schlüssel.
 // location.hash dient primär der Tab-Navigation; nur ein Hash, der KEIN Tab-Name ist,
 // wird (wie bisher) als Schlüssel interpretiert.
-const TAB_NAMEN = ["uebersicht", "systemkarte", "projekte", "agenten", "entscheidungen", "wissen"];
+const TAB_NAMEN = ["uebersicht", "systemkarte", "projekte", "agenten", "entscheidungen", "statistik", "wissen"];
 const startHash = decodeURIComponent(location.hash.slice(1));
 const KEY = (startHash && !TAB_NAMEN.includes(startHash)) ? startHash : "SCHLUESSEL_HIER_EINSETZEN";
 const DATEN_URL = "https://ahrammvkqgpmagyfggmi.supabase.co/functions/v1/dashboard?key=" + encodeURIComponent(KEY);
@@ -269,6 +341,7 @@ const AGENT_COLORS = {
   "daten-agent": "#2f7d4f",
   "web-agent": "#0e7d8a",
   "research-agent": "#8a5a83",
+  "review-agent": "#5c6b3f",
 };
 
 // [Schlüssel, Anzeigename, Kurzrolle]
@@ -280,6 +353,48 @@ const AGENTS = [
   ["daten-agent", "Daten-Agent", "Datenbank, Auswertungen und Migrationen"],
   ["web-agent", "Web-Agent", "Baut und pflegt die Websites (GitHub + Vercel), technisches SEO"],
   ["research-agent", "Research-Agent", "Allgemeine Recherche: Markt, Anbieter, Preise, Fakten"],
+];
+
+// Projekt-Steckbriefe: feste Links und Erkennungswörter je Website-Projekt.
+// Bewusst hier als Konstante statt in der Datenbank — die Werte ändern sich selten,
+// eine eigene Tabelle dafür wäre reiner Wartungsaufwand.
+const GH = "https://github.com/Krisensicher/swissROI/blob/claude/setup-abschliessen-zstipr/docs/";
+const PROJEKTE = {
+  "03884af4-67a0-4de8-8d03-4e341e87c2ec": {
+    emoji: "🚰", kurz: "sanitaer-notdienst.ch",
+    vorschau: "https://claude.ai/code/artifact/83f39980-de5c-445a-8681-a0ced23cf20a",
+    keywordMap: GH + "keyword-map-sanitaer-notdienst.md",
+    repo: "https://github.com/Krisensicher/sanitaer-notdienst.ch",
+    pr: "https://github.com/Krisensicher/sanitaer-notdienst.ch/pull/1",
+    // Erkennungswörter für Texte/Einsätze dieses Projekts. Bewusst breit: die
+    // Sanitär-Texte heissen teils nur «Regionalseite Zürich» oder «Boiler entkalken».
+    stichworte: ["sanitär", "sanitaer", "rohrbruch", "rohrreinigung", "verstopf", "abfluss",
+      "boiler", "kanal", "notdienst", "regionalseite zürich", "regionalseite bern",
+      "regionalseite basel", "regionalseite aargau", "regionalseite luzern"],
+  },
+  "52bfe688-1667-4184-b14a-421c409d4333": {
+    emoji: "💧", kurz: "Wasserschaden-Hub",
+    vorschau: "https://claude.ai/code/artifact/d24b1850-8cf1-4905-a866-d1494a187633",
+    keywordMap: GH + "keyword-map-wasserschaden.md",
+    stichworte: ["wasserschaden", "trocknung", "leckortung"],
+  },
+  "6fbf972b-748a-4b16-9809-36c016170998": {
+    emoji: "🧱", kurz: "Kellerabdichtung-Hub",
+    vorschau: "https://claude.ai/code/artifact/47f5dc3f-501d-420d-a95b-f4e01a723951",
+    keywordMap: GH + "keyword-map-kellerabdichtung.md",
+    stichworte: ["keller", "abdicht", "feuchte wand"],
+  },
+};
+
+// Kachel-Galerie der Projektmappe. Reihenfolge = Anzeige-Reihenfolge;
+// «Meilensteine» steht bewusst zuoberst und über die volle Breite.
+const KACHELN = [
+  { typ: "meilensteine", label: "Meilensteine", glyph: "🏁", voll: true },
+  { typ: "vorschau", label: "Website-Vorschau", glyph: "🖥️" },
+  { typ: "keywords", label: "Keyword-Map", glyph: "🔑" },
+  { typ: "audit", label: "Audit & Kritik", glyph: "🔍" },
+  { typ: "texte", label: "Texte", glyph: "📝" },
+  { typ: "statistik", label: "Projekt-Statistik", glyph: "📊" },
 ];
 
 // Absprung in den Supabase-Studio-Tabelleneditor. Tiefer als /editor lässt sich nicht
@@ -325,34 +440,120 @@ function renderAmpeln(d, g, t, r) {
       <span class="hint">Ziele in Arbeit</span></div>`;
 }
 
-/* ---------- Projekte ---------- */
-function renderProjekte(g, t) {
-  const karte = (goal, fertig) => {
+/* ---------- Projektmappe: Kachel-Galerie je Projekt ---------- */
+// Trifft ein Text eines der Erkennungswörter des Projekts?
+const passt = (text, stichworte) => {
+  const s = String(text ?? "").toLowerCase();
+  return (stichworte ?? []).some((w) => s.includes(w));
+};
+
+// Eine Bau-Funktion je Kachel-Typ. ctx = { goal, p, msteine, aufgaben, prj_runs, texte }
+const KACHEL_BAU = {
+  meilensteine: ({ msteine }) => {
+    if (!msteine.length) {
+      return `<p class="inhalt">Noch keine Meilensteine gesetzt — der Manager legt sie beim nächsten Takt an.</p>`;
+    }
+    const erreicht = msteine.filter((x) => x.status === "erledigt").length;
+    const li = msteine.map((x) => {
+      const offen = x.status !== "erledigt";
+      return `<li class="${offen ? "offen" : "erledigt"}">
+        <span class="mk">${offen ? (x.status === "blockiert" ? "⛔" : "○") : "✓"}</span>
+        <span><span class="mt">${esc(x.title)}</span>${x.details ? `<div class="sub">${esc(kurz(x.details, 90))}</div>` : ""}</span></li>`;
+    }).join("");
+    return `<ul class="msteine">${li}</ul>
+      <p class="mfort">${erreicht} von ${msteine.length} erreicht — offene Punkte brauchen meist dich (Domain, Repo, Freigabe).</p>`;
+  },
+
+  vorschau: ({ p }) => p?.vorschau
+    ? `<p class="inhalt">Klickbare Vorschau der gebauten Website — alle Seiten in einer Datei.</p>
+       <span class="fuss">↗ öffnet in neuem Tab</span>`
+    : `<p class="inhalt">Noch keine Vorschau vorhanden.</p>`,
+
+  keywords: ({ p }) => p?.keywordMap
+    ? `<p class="inhalt">Welche Seite auf welche Keywords zielt — plus Backlink-Anleitung und KI-Test-Prompts.</p>
+       <span class="fuss">↗ Dokument auf GitHub</span>`
+    : `<p class="inhalt">Noch keine Keyword-Map.</p>`,
+
+  audit: ({ prj_runs }) => {
+    const pruef = prj_runs.find((x) => /kritik|review|audit|prüf|pruef|bewert/i.test(`${x.task} ${x.result_summary ?? ""}`));
+    return pruef
+      ? `<p class="inhalt">${esc(kurz(pruef.result_summary || pruef.task, 150))}</p>
+         <span class="fuss">${esc(pruef.agent)} · ${fmtDate(pruef.started_at)}</span>`
+      : `<p class="inhalt">Noch kein Audit. Der Montags-Kritiker prüft die Projekte automatisch.</p>`;
+  },
+
+  texte: ({ texte }) => texte.length
+    ? `<ul class="txt">${texte.slice(0, 6).map((x) => `<li>
+         <button type="button" data-detail="${esc(x.id)}">${esc(kurz(x.title, 58))}</button>
+         <span class="pill">${esc(x.status)}</span></li>`).join("")}</ul>
+       <span class="fuss">${texte.length} Text${texte.length === 1 ? "" : "e"} · Klick zeigt den Volltext</span>`
+    : `<p class="inhalt">Noch keine Texte erfasst.</p>`,
+
+  statistik: ({ prj_runs, texte, msteine }) => {
+    const tok = prj_runs.reduce((s, x) => s + (x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0), 0);
+    const erreicht = msteine.filter((x) => x.status === "erledigt").length;
+    return `<p class="inhalt">${prj_runs.length} Einsätze · ≈ ${fmtTokens(tok)} Tokens<br>
+      ${texte.length} Texte · ${erreicht}/${msteine.length} Meilensteine</p>
+      <span class="fuss">Token-Zahlen sind Schätzwerte</span>`;
+  },
+};
+
+function renderProjekte(g, t, r, c) {
+  const mappe = (goal, fertig) => {
+    const p = PROJEKTE[goal.id];
     const gt = t.filter((x) => x.goal_id === goal.id);
-    const done = gt.filter((x) => x.status === "erledigt").length;
-    const pct = gt.length ? Math.round((done / gt.length) * 100) : 0;
-    const list = gt.map((x) => `<li class="task ${esc(x.status)}">
+    const msteine = gt.filter((x) => x.agent === "meilenstein");
+    const aufgaben = gt.filter((x) => x.agent !== "meilenstein");
+    const stichworte = p?.stichworte ?? [];
+    const prj_runs = r.filter((x) => passt(`${x.task} ${x.result_summary ?? ""}`, stichworte));
+    const texte = c.filter((x) => passt(x.title, stichworte));
+
+    const done = aufgaben.filter((x) => x.status === "erledigt").length;
+    const pct = aufgaben.length ? Math.round((done / aufgaben.length) * 100) : 0;
+    const ctx = { goal, p, msteine, aufgaben, prj_runs, texte };
+
+    const ziel = { vorschau: p?.vorschau, keywords: p?.keywordMap };
+    const kacheln = KACHELN.map((k) => {
+      const inner = `<h4><span class="glyph">${k.glyph}</span>${k.label}</h4>${KACHEL_BAU[k.typ](ctx)}`;
+      const cls = `kachel${k.voll ? " voll" : ""}`;
+      return ziel[k.typ]
+        ? `<a class="${cls}" href="${ziel[k.typ]}" target="_blank" rel="noopener">${inner}</a>`
+        : `<div class="${cls}">${inner}</div>`;
+    }).join("");
+
+    const links = [
+      p?.repo ? `<a class="out" href="${p.repo}" target="_blank" rel="noopener">↗ Repo</a>` : "",
+      p?.pr ? `<a class="out" href="${p.pr}" target="_blank" rel="noopener">↗ Pull Request</a>` : "",
+    ].filter(Boolean).join("");
+
+    const aufgabenListe = aufgaben.map((x) => `<li class="task ${esc(x.status)}">
         <span class="dot" style="background:${AGENT_COLORS[x.agent] ?? "#888"}"></span>
         <span class="tt">${esc(x.title)}</span><em>· ${esc(x.agent)} · ${esc(x.status)}</em></li>`).join("");
-    return `<article class="goal${fertig ? " fertig" : ""}">
-      <header><h3><span class="pnum">P${goal.priority}</span>${esc(goal.title)}</h3>
-        <span class="pct">${fertig ? `erreicht am ${fmtTag(goal.updated_at)}` : `${done}/${gt.length} Aufgaben (${pct}%)`}</span></header>
+
+    return `<article class="mappe${fertig ? " fertig" : ""}">
+      <header><h3><span class="pnum">P${goal.priority}</span>${p ? p.emoji + " " : ""}${esc(goal.title)}</h3>
+        <span class="pct">${fertig ? `erreicht am ${fmtTag(goal.updated_at)}` : `${done}/${aufgaben.length} Aufgaben (${pct}%)`}</span></header>
+      ${links ? `<p class="blinks">${links}</p>` : ""}
       <div class="bar"><div style="width:${fertig ? 100 : pct}%"></div></div>
       ${goal.description ? `<p class="desc">${esc(goal.description)}</p>` : ""}
-      ${fertig ? "" : `<ul class="tasks">${list || "<li class='task'><em>Noch keine Aufgaben geplant — passiert beim nächsten Takt.</em></li>"}</ul>`}
+      <div class="kacheln">${kacheln}</div>
+      ${aufgaben.length ? `<details class="klapp"><summary>Alle Aufgaben (${aufgaben.length})</summary>
+        <ul class="tasks">${aufgabenListe}</ul></details>` : ""}
     </article>`;
   };
 
   const aktive = g.filter((x) => x.status === "aktiv");
   const erreichte = g.filter((x) => x.status === "erreicht");
   const aktivHtml = aktive.length
-    ? aktive.map((x) => karte(x, false)).join("")
+    ? aktive.map((x) => mappe(x, false)).join("")
     : `<p class="empty">Keine aktiven Projekte. Gib dem Manager ein Ziel — z.&nbsp;B. «Neues Ziel: …» — und der tägliche Takt arbeitet automatisch daran.</p>`;
   const fertigHtml = erreichte.length
     ? `<details class="klapp"><summary>Abgeschlossene Projekte (${erreichte.length})</summary>
-       ${erreichte.map((x) => karte(x, true)).join("")}</details>`
+       ${erreichte.map((x) => mappe(x, true)).join("")}</details>`
     : "";
-  return `<h2>Projekte${sbLink("goals / tasks")}</h2><p class="lead">Deine Ziele und wie weit die Agenten damit sind. Jeder Punkt hat die Farbe des zuständigen Agenten.</p>${aktivHtml}${fertigHtml}`;
+  return `<h2>Projekte${sbLink("goals / tasks")}</h2>
+    <p class="lead">Eine Mappe pro Projekt. Ganz oben stehen die Meilensteine — der wichtigste Blick: was ist erreicht, was fehlt noch.
+    Die Kacheln darunter führen direkt zur Vorschau, zur Keyword-Map, zum letzten Audit und zu den Texten.</p>${aktivHtml}${fertigHtml}`;
 }
 
 /* ---------- Übersicht (Tages-Blick) ---------- */
@@ -438,6 +639,64 @@ function renderEntscheidungen(offen, hist) {
   return `<h2>Entscheidungen${sbLink("decisions")}</h2><p class="lead">Hier landet alles, was Geld kostet, publiziert wird oder die Strategie ändert — nichts davon passiert ohne dich.</p>${offenHtml}${histHtml}`;
 }
 
+/* ---------- Statistik: Token-Tagesbalken je Agent ---------- */
+function renderStatistik(stats) {
+  const tagKey = (d) => d.toLocaleDateString("en-CA", { timeZone: "Europe/Zurich" });
+  const anzahl = stats?.tage_anzahl ?? 90;
+  const buckets = new Map((stats?.tage ?? []).map((x) => [x.tag, x.agenten ?? {}]));
+  const summen = stats?.summen ?? {};
+
+  // Volle Tagesreihe aufbauen, damit Lücken als Lücken sichtbar bleiben.
+  const jetzt = Date.now();
+  const reihe = [];
+  for (let i = anzahl - 1; i >= 0; i--) {
+    const d = new Date(jetzt - i * 864e5);
+    const key = tagKey(d);
+    reihe.push({ key, datum: d, agenten: buckets.get(key) ?? {} });
+  }
+  const tagSumme = (a) => Object.values(a).reduce((s, v) => s + v, 0);
+  const max = Math.max(1, ...reihe.map((x) => tagSumme(x.agenten)));
+
+  const saeulen = reihe.map((tag) => {
+    const posten = Object.entries(tag.agenten).sort((a, b) => b[1] - a[1]);
+    const segs = posten.map(([agent, tok]) =>
+      `<div style="height:${(tok / max) * 100}%;background:${AGENT_COLORS[agent] ?? "#8a8a8a"}"></div>`).join("");
+    const titel = posten.length
+      ? `${fmtTag(tag.datum)}: ${posten.map(([a, v]) => `${a} ≈ ${fmtTokens(v)}`).join(", ")}`
+      : `${fmtTag(tag.datum)}: keine Einsätze`;
+    return `<div class="tagsp" title="${esc(titel)}">${segs}</div>`;
+  }).join("");
+
+  const achse = reihe.map((tag, i) => {
+    const zeig = i === reihe.length - 1 || (reihe.length - 1 - i) % 7 === 0;
+    return `<span>${zeig ? tag.datum.toLocaleDateString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit" }) : ""}</span>`;
+  }).join("");
+
+  const rang = Object.entries(summen).sort((a, b) => b[1].tokens - a[1].tokens);
+  const gesamt = rang.reduce((s, [, v]) => s + v.tokens, 0);
+  const laeufe = rang.reduce((s, [, v]) => s + v.laeufe, 0);
+  const legende = rang.length
+    ? `<div class="legende">${rang.map(([agent, v]) => `<div>
+         <span class="dot" style="background:${AGENT_COLORS[agent] ?? "#8a8a8a"}"></span>
+         <span>${esc(agent)}</span>
+         <span class="lz">≈ ${fmtTokens(v.tokens)} · ${v.laeufe} Einsätze</span></div>`).join("")}</div>`
+    : "";
+
+  const leer = gesamt === 0;
+  return `<h2>Token-Statistik${sbLink("agent_runs")}</h2>
+    <p class="lead">Verbrauch pro Tag, gestapelt nach Agent — für die langfristige Auswertung über ${anzahl} Tage.
+    Alle Zahlen sind <strong>Schätzwerte des Managers</strong>, keine Abrechnung: exakte Token-Zahlen sind aus einer Claude-Session nicht auslesbar.</p>
+    <div class="ampeln" style="margin-bottom:1rem">
+      <div class="ampel"><b>≈ ${fmtTokens(gesamt)}</b><span>Tokens (${anzahl} Tage)</span><span class="hint">Summe aller Agenten</span></div>
+      <div class="ampel"><b>${laeufe}</b><span>Einsätze</span><span class="hint">Protokollierte Agent-Läufe</span></div>
+      <div class="ampel"><b>≈ ${fmtTokens(Math.round(gesamt / anzahl))}</b><span>Ø pro Tag</span><span class="hint">Auch Tage ohne Einsatz gezählt</span></div>
+      <div class="ampel"><b>≈ ${fmtTokens(max)}</b><span>Spitzentag</span><span class="hint">Höchster Tagesverbrauch</span></div>
+    </div>
+    ${leer
+      ? `<p class="empty">Noch keine Einsätze im Zeitraum — sobald Agenten arbeiten, wachsen hier die Tagesbalken.</p>`
+      : `<div class="chart"><div class="saeulen">${saeulen}</div><div class="achse">${achse}</div>${legende}</div>`}`;
+}
+
 /* ---------- Second Brain ---------- */
 function renderBrain(k, c, h) {
   const topK = [...k].sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0)).slice(0, 10);
@@ -478,9 +737,10 @@ function render(data) {
 
   renderAmpeln(d, g, t, r);
   document.getElementById("tab-uebersicht").innerHTML = renderUebersicht(r, d);
-  document.getElementById("tab-projekte").innerHTML = renderProjekte(g, t);
+  document.getElementById("tab-projekte").innerHTML = renderProjekte(g, t, r, c);
   document.getElementById("tab-agenten").innerHTML = renderBoard(t, r, d);
   document.getElementById("tab-entscheidungen").innerHTML = renderEntscheidungen(d, dh);
+  document.getElementById("tab-statistik").innerHTML = renderStatistik(data.stats);
   document.getElementById("tab-wissen").innerHTML = renderBrain(k, c, h);
 
   // Zähler-Badge am Agenten-Menüpunkt: offene Fragen, die einem Agent zugeordnet sind
@@ -528,9 +788,39 @@ async function kopieren(text) {
   } catch (_) { return false; }
 }
 
+/* ---------- Detail-Overlay (Volltexte) ---------- */
+const overlay = document.getElementById("overlay");
+const ovinhalt = document.getElementById("ovinhalt");
+
+function overlayZu() { overlay.hidden = true; ovinhalt.innerHTML = ""; }
+
+async function zeigeDetail(id) {
+  overlay.hidden = false;
+  ovinhalt.innerHTML = `<p class="sub">Lade Volltext …</p>`;
+  try {
+    const res = await fetch(DATEN_URL + "&detail=content:" + encodeURIComponent(id));
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || `Status ${res.status}`);
+    const x = body.detail;
+    ovinhalt.innerHTML = `<p class="eyebrow">${esc(x.type)}${x.channel ? " · " + esc(x.channel) : ""}</p>
+      <h3>${esc(x.title)}</h3>
+      <p class="sub"><span class="pill">${esc(x.status)}</span> · angelegt ${fmtTag(x.created_at)}${
+        x.updated_at && x.updated_at !== x.created_at ? ` · geändert ${fmtTag(x.updated_at)}` : ""}</p>
+      <div class="volltext">${esc(x.body ?? "(kein Text gespeichert)")}</div>`;
+  } catch (e) {
+    ovinhalt.innerHTML = `<h3>Text konnte nicht geladen werden</h3><p class="sub">${esc(e.message)}</p>`;
+  }
+}
+
+document.getElementById("ovzu").addEventListener("click", overlayZu);
+overlay.addEventListener("click", (ev) => { if (ev.target === overlay) overlayZu(); });
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !overlay.hidden) overlayZu(); });
+
 document.addEventListener("click", async (ev) => {
   const goto = ev.target.closest(".ampel[data-goto]");
   if (goto) { location.hash = goto.dataset.goto; return; }
+  const detail = ev.target.closest("button[data-detail]");
+  if (detail) { zeigeDetail(detail.dataset.detail); return; }
   const btn = ev.target.closest("button.antwort");
   if (!btn) return;
   const vorlage = `Antwort zu «${btn.dataset.topic}»: `;
