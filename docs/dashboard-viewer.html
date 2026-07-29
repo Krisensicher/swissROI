@@ -25,7 +25,13 @@
   .eyebrow { text-transform:uppercase; letter-spacing:.14em; font-size:.72rem; color:var(--accent); font-weight:700; margin:0 0 .35rem; }
   h1 { font-size:clamp(1.6rem,4vw,2.3rem); font-weight:800; letter-spacing:-.02em; margin:0; }
   .stand { color:var(--soft); font-size:.82rem; margin-top:.4rem; }
-  h2 { font-size:1rem; text-transform:uppercase; letter-spacing:.1em; border-bottom:1px solid var(--line); padding-bottom:.45rem; margin:2.4rem 0 .35rem; }
+  h2 { font-size:1rem; text-transform:uppercase; letter-spacing:.1em; border-bottom:1px solid var(--line); padding-bottom:.45rem; margin:2.4rem 0 .35rem; display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap; }
+
+  /* ---- Link-Ausgänge (dezent) ---- */
+  a.out { margin-left:auto; font-size:.68rem; font-weight:600; letter-spacing:.02em; text-transform:none; color:var(--soft); text-decoration:none; border-bottom:1px dotted var(--line); white-space:nowrap; }
+  a.out:hover { color:var(--accent); border-bottom-color:var(--accent); }
+  .blinks { display:flex; gap:.8rem; flex-wrap:wrap; margin-top:.35rem; }
+  .blinks a.out, .site a.out { margin-left:0; }
   .lead { font-size:.85rem; color:var(--soft); margin:0 0 1rem; max-width:78ch; }
   .sub { font-size:.75rem; color:var(--soft); margin-top:.15rem; }
   .empty { color:var(--soft); font-size:.88rem; background:var(--card); border:1px dashed var(--line); padding:.9rem 1rem; max-width:65ch; }
@@ -55,7 +61,7 @@
   .stuetzen { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.5rem; margin-top:.55rem; }
   .rel { font-size:.68rem; color:var(--warn); font-weight:700; text-transform:uppercase; letter-spacing:.06em; display:block; margin-top:.3rem; }
   .sites { display:flex; flex-direction:column; gap:.3rem; margin-top:.5rem; }
-  .site { font-size:.76rem; display:flex; align-items:center; gap:.45rem; background:var(--chip); padding:.3rem .55rem; }
+  .site { font-size:.76rem; display:flex; align-items:center; gap:.45rem; background:var(--chip); padding:.3rem .55rem; flex-wrap:wrap; }
   .site .st { margin-left:auto; font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; }
   .site[data-status="pr-bereit"] .st { color:var(--ok); }
   .site[data-status="wartet"] .st { color:var(--warn); }
@@ -114,7 +120,7 @@
   tr:last-child td { border-bottom:none; }
   td.num { font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
   .brain { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1rem; align-items:start; }
-  .brain h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.08em; margin:0 0 .5rem; }
+  .brain h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.08em; margin:0 0 .5rem; display:flex; align-items:baseline; gap:.5rem; flex-wrap:wrap; }
   .cstat { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-bottom:.6rem; }
   .cstat div { background:var(--card); text-align:center; padding:.45rem .2rem .35rem; }
   .cstat b { display:block; font-size:1.15rem; font-variant-numeric:tabular-nums; }
@@ -148,16 +154,26 @@
       <div class="baustein">
         <h4><span class="bnr">2</span>GitHub-Repos</h4>
         <p>Das swissROI-Repo ist das «Betriebssystem» (alle Regeln, jede Änderung ein Commit) — dazu ein eigenes Code-Repo pro Website. Der Web-Agent arbeitet auf Branches; live geht nichts ohne deine Freigabe.</p>
+        <p class="blinks"><a class="out" href="https://github.com/Krisensicher/swissROI" target="_blank" rel="noopener">↗ swissROI-Repo</a></p>
       </div>
       <div class="arr">→</div>
       <div class="baustein">
         <h4><span class="bnr">3</span>Vercel → Websites</h4>
         <p>Jeder Push baut automatisch eine Vorschau; der Produktions-Branch ist die Live-Website.</p>
+        <p class="blinks"><a class="out" href="https://vercel.com/dashboard" target="_blank" rel="noopener">↗ Vercel-Dashboard</a></p>
         <!-- Website-Status: HARDCODED — wird vom Manager gepflegt (liegt nicht strukturiert in der Datenbank). -->
         <div class="sites">
-          <span class="site" data-status="pr-bereit">sanitaer-notdienst.ch <span class="st">PR bereit</span></span>
-          <span class="site" data-status="wartet">Wasserschaden-Hub <span class="st">wartet auf Repo/Domain</span></span>
-          <span class="site" data-status="wartet">Kellerabdichtungs-Hub <span class="st">wartet auf Repo/Domain</span></span>
+          <span class="site" data-status="pr-bereit">🚰 sanitaer-notdienst.ch
+            <a class="out" href="https://github.com/Krisensicher/sanitaer-notdienst.ch" target="_blank" rel="noopener">↗ Repo</a>
+            <a class="out" href="https://github.com/Krisensicher/sanitaer-notdienst.ch/pull/1" target="_blank" rel="noopener">↗ PR</a>
+            <a class="out" href="https://claude.ai/code/artifact/83f39980-de5c-445a-8681-a0ced23cf20a" target="_blank" rel="noopener">↗ Vorschau</a>
+            <span class="st">PR bereit</span></span>
+          <span class="site" data-status="wartet">💧 Wasserschaden-Hub
+            <a class="out" href="https://claude.ai/code/artifact/d24b1850-8cf1-4905-a866-d1494a187633" target="_blank" rel="noopener">↗ Vorschau</a>
+            <span class="st">wartet auf Repo/Domain</span></span>
+          <span class="site" data-status="wartet">🧱 Kellerabdichtungs-Hub
+            <a class="out" href="https://claude.ai/code/artifact/47f5dc3f-501d-420d-a95b-f4e01a723951" target="_blank" rel="noopener">↗ Vorschau</a>
+            <span class="st">wartet auf Repo/Domain</span></span>
         </div>
       </div>
     </div>
@@ -165,6 +181,7 @@
       <div class="baustein">
         <h4><span class="bnr">4</span>Supabase-Gedächtnis</h4>
         <p>Das Second Brain: Ziele, Aufgaben, Einsätze, Keywords, Content, Entscheidungen — alles, was die Agentur weiss.</p>
+        <p class="blinks"><a class="out" href="https://supabase.com/dashboard/project/ahrammvkqgpmagyfggmi" target="_blank" rel="noopener">↗ Supabase-Projekt</a></p>
         <span class="rel">↔ Manager &amp; Agenten lesen und schreiben hier</span>
       </div>
       <div class="baustein">
@@ -217,6 +234,12 @@ const AGENTS = [
   ["web-agent", "Web-Agent", "Baut und pflegt die Websites (GitHub + Vercel), technisches SEO"],
   ["research-agent", "Research-Agent", "Allgemeine Recherche: Markt, Anbieter, Preise, Fakten"],
 ];
+
+// Absprung in den Supabase-Studio-Tabelleneditor. Tiefer als /editor lässt sich nicht
+// stabil verlinken (Studio nutzt interne Tabellen-IDs) — der Editor listet alle Tabellen links.
+const SB_EDITOR = "https://supabase.com/dashboard/project/ahrammvkqgpmagyfggmi/editor";
+const sbLink = (tabelle) =>
+  `<a class="out" href="${SB_EDITOR}" target="_blank" rel="noopener" title="Tabelle «${tabelle}» im Supabase-Studio">↗ In Supabase öffnen</a>`;
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -282,7 +305,7 @@ function renderProjekte(g, t) {
     ? `<details class="klapp"><summary>Abgeschlossene Projekte (${erreichte.length})</summary>
        ${erreichte.map((x) => karte(x, true)).join("")}</details>`
     : "";
-  return `<h2>Projekte</h2><p class="lead">Deine Ziele und wie weit die Agenten damit sind. Jeder Punkt hat die Farbe des zuständigen Agenten.</p>${aktivHtml}${fertigHtml}`;
+  return `<h2>Projekte${sbLink("goals / tasks")}</h2><p class="lead">Deine Ziele und wie weit die Agenten damit sind. Jeder Punkt hat die Farbe des zuständigen Agenten.</p>${aktivHtml}${fertigHtml}`;
 }
 
 /* ---------- Agenten-Board ---------- */
@@ -318,7 +341,7 @@ function renderBoard(t, r) {
       <footer><span>${ar.length} Einsätze erfasst</span><span>≈ ${fmtTokens(tok)} Tokens</span></footer>
     </article>`;
   }).join("");
-  return `<h2>Agenten-Board</h2><p class="lead">Eine Karte pro Agent: woran er arbeitet, was ansteht, was er zuletzt geliefert hat. Mit «Frage stellen» kopierst du eine fertige Chat-Zeile für den Manager.</p><div class="board">${cards}</div>`;
+  return `<h2>Agenten-Board${sbLink("agent_runs")}</h2><p class="lead">Eine Karte pro Agent: woran er arbeitet, was ansteht, was er zuletzt geliefert hat. Mit «Frage stellen» kopierst du eine fertige Chat-Zeile für den Manager.</p><div class="board">${cards}</div>`;
 }
 
 /* ---------- Entscheidungen ---------- */
@@ -334,7 +357,7 @@ function renderEntscheidungen(offen, hist) {
          <div class="sub">${esc(kurz(x.description, 160))}</div>
          <div class="antwort"><strong>Deine Entscheidung${x.decided_at ? ` (${fmtTag(x.decided_at)})` : ""}:</strong> ${esc(x.decision ?? "verworfen")}</div></li>`).join("")}</ul></details>`
     : "";
-  return `<h2>Entscheidungen</h2><p class="lead">Hier landet alles, was Geld kostet, publiziert wird oder die Strategie ändert — nichts davon passiert ohne dich.</p>${offenHtml}${histHtml}`;
+  return `<h2>Entscheidungen${sbLink("decisions")}</h2><p class="lead">Hier landet alles, was Geld kostet, publiziert wird oder die Strategie ändert — nichts davon passiert ohne dich.</p>${offenHtml}${histHtml}`;
 }
 
 /* ---------- Second Brain ---------- */
@@ -353,14 +376,14 @@ function renderBrain(k, c, h) {
   return `<h2>Second Brain — Wissen</h2>
   <p class="lead">Was die Agentur bereits gesammelt hat: Keyword-Daten, die Content-Pipeline und die täglichen Takt-Reports.</p>
   <div class="brain">
-    <div><h3>Top-Keywords <span class="sub" style="display:inline">(${k.length} zuletzt erfasste)</span></h3>
+    <div><h3>Top-Keywords <span class="sub" style="display:inline">(${k.length} zuletzt erfasste)</span>${sbLink("seo_keywords")}</h3>
       <div class="tbl"><table><thead><tr><th>Keyword</th><th style="text-align:right">Volumen</th><th style="text-align:right">Difficulty</th></tr></thead>
       <tbody>${kwRows || `<tr><td colspan="3"><em>Noch keine Keywords — beauftrage den SEO-Agent.</em></td></tr>`}</tbody></table></div></div>
-    <div><h3>Content-Pipeline <span class="sub" style="display:inline">(neueste 10)</span></h3>
+    <div><h3>Content-Pipeline <span class="sub" style="display:inline">(neueste 10)</span>${sbLink("content_items")}</h3>
       <div class="cstat">${stati.map((s, i) => `<div><b>${cCounts[i]}</b><span>${s}</span></div>`).join("")}</div>
       <div class="tbl"><table><thead><tr><th>Titel</th><th>Typ</th><th>Status</th></tr></thead>
       <tbody>${cRows || `<tr><td colspan="3"><em>Noch keine Inhalte — beauftrage den Content-Agent.</em></td></tr>`}</tbody></table></div></div>
-    <div><h3>Arbeits-Takt (letzte 7 Tage)</h3>
+    <div><h3>Arbeits-Takt (letzte 7 Tage)${sbLink("heartbeat_reports")}</h3>
       <div class="tbl"><table><thead><tr><th>Report</th><th style="text-align:right">Läufe</th><th style="text-align:right">Fehler</th><th style="text-align:right">Tokens</th></tr></thead>
       <tbody>${hbRows || `<tr><td colspan="4"><em>Noch kein Takt-Report.</em></td></tr>`}</tbody></table></div></div>
   </div>`;
