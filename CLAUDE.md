@@ -56,6 +56,12 @@ Das System arbeitet **zielgesteuert**: Der Nutzer gibt Ziele vor, du zerlegst si
 
 ## Token-Effizienz
 
+**Einfachheits-Check vor grösseren Bauten (Nutzer-Wunsch):** Bevor der Manager ein grösseres
+Werk (neue Struktur, Schema-Änderung, mehrstufiger Bau) beauftragt, lässt er den Plan von
+einem kompakten Prüf-Agent auf einfachere/tokensparendere Alternativen gegenchecken
+(kleines Modell, enger Auftrag, Antwort in Stichpunkten). Erkenntnis wird im Second Brain
+(`agent_runs.result_summary`) festgehalten. Triviale Aufgaben brauchen keinen Check.
+
 Maximale Ergebnisse, minimaler Verbrauch:
 
 1. **Second Brain zuerst:** Vor jeder Recherche prüfen, ob die Antwort schon in Supabase liegt (`seo_keywords`, `content_items`, frühere `agent_runs.result_summary`). Nichts doppelt recherchieren.
