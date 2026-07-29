@@ -40,6 +40,28 @@
   .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:.45rem; flex:none; }
   #fehler { display:none; background:var(--card); border-left:3px solid var(--accent); padding:.9rem 1rem; margin-bottom:1.2rem; font-size:.9rem; }
 
+  /* ---- Menü-Navigation + fixierter Kopf ---- */
+  .fixkopf { position:sticky; top:0; z-index:6; background:var(--paper); padding-top:.2rem; margin-bottom:1.4rem;
+             box-shadow:0 6px 8px -8px rgba(0,0,0,.25); }
+  nav.menue { display:flex; gap:.15rem; overflow-x:auto; border-bottom:2px solid var(--ink); margin-bottom:.7rem;
+              -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
+  nav.menue a { flex:none; padding:.55rem .85rem .45rem; font-size:.78rem; font-weight:700; text-transform:uppercase;
+                letter-spacing:.06em; color:var(--soft); text-decoration:none; white-space:nowrap;
+                border-bottom:3px solid transparent; margin-bottom:-2px; }
+  nav.menue a:hover { color:var(--ink); }
+  nav.menue a.aktiv { color:var(--ink); border-bottom-color:var(--accent); }
+  .badge { display:inline-block; background:var(--accent); color:#fff; border-radius:9px; padding:0 .38rem;
+           font-size:.64rem; line-height:1.5; margin-left:.35rem; vertical-align:1px; font-variant-numeric:tabular-nums; }
+  .fixkopf .ampeln { padding-bottom:.7rem; }
+  .fixkopf .ampel b { font-size:1.35rem; }
+  .ampel[data-goto] { cursor:pointer; }
+  .ampel[data-goto]:hover { border-color:var(--accent); }
+  @media (max-width:700px) { .fixkopf .ampel .hint { display:none; } }
+
+  /* ---- Tabs ---- */
+  .tab { display:none; }
+  .tab.aktiv { display:block; }
+
   /* ---- Ampel-Kacheln ---- */
   .ampeln { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.6rem; }
   .ampel { background:var(--card); border:1px solid var(--line); border-top:4px solid var(--line); padding:.75rem .9rem .65rem; }
@@ -92,8 +114,11 @@
   .agent > header { display:flex; align-items:center; gap:.5rem; }
   .agent h3 { margin:0; font-size:.95rem; }
   .agent .rolle { font-size:.76rem; color:var(--soft); margin:-.35rem 0 0; }
-  .agent .frage { margin-left:auto; flex:none; background:var(--chip); border:1px solid var(--line); color:var(--ink); font:inherit; font-size:.72rem; font-weight:700; padding:.25rem .55rem; cursor:pointer; border-radius:3px; }
-  .agent .frage:hover { border-color:var(--ink); }
+  .agent.hatfrage { border-left-color:var(--accent); border-right-color:var(--accent); border-bottom-color:var(--accent); }
+  .frageblock { background:var(--rotbg); border:1px solid var(--accent); padding:.6rem .75rem; font-size:.8rem; border-radius:3px; }
+  .frageblock h6 { margin:0 0 .25rem; font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); }
+  .frageblock .antwort { display:inline-block; margin-top:.45rem; background:var(--card); border:1px solid var(--accent); color:var(--accent); font:inherit; font-size:.72rem; font-weight:700; padding:.3rem .6rem; cursor:pointer; border-radius:3px; }
+  .frageblock .antwort:hover { background:var(--accent); color:#fff; }
   .spalten { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.5rem; }
   .spalte h5 { margin:0 0 .25rem; font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; color:var(--soft); border-bottom:1px solid var(--line); padding-bottom:.2rem; }
   .spalte ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.25rem; }
@@ -139,9 +164,23 @@
     <p class="stand" id="stand">Lade Daten …</p>
   </header>
 
-  <div id="fehler"></div>
-  <div id="ampeln" class="ampeln"></div>
+  <div class="fixkopf">
+    <nav class="menue" id="menue">
+      <a href="#uebersicht" data-tab="uebersicht">Übersicht</a>
+      <a href="#systemkarte" data-tab="systemkarte">Systemkarte</a>
+      <a href="#projekte" data-tab="projekte">Projekte</a>
+      <a href="#agenten" data-tab="agenten">Agenten<span class="badge" id="agentenBadge" hidden></span></a>
+      <a href="#entscheidungen" data-tab="entscheidungen">Entscheidungen</a>
+      <a href="#wissen" data-tab="wissen">Wissen</a>
+    </nav>
+    <div id="ampeln" class="ampeln"></div>
+  </div>
 
+  <div id="fehler"></div>
+
+  <section class="tab" id="tab-uebersicht"></section>
+
+  <section class="tab" id="tab-systemkarte">
   <h2>So arbeitet deine Agentur</h2>
   <p class="lead">Die 7 Bausteine des Systems und wie sie zusammenhängen. Diese Karte ist statisch — was sich täglich bewegt, steht in den Abschnitten darunter.</p>
   <div class="karte">
@@ -201,8 +240,12 @@
       </div>
     </div>
   </div>
+  </section>
 
-  <div id="dyn"></div>
+  <section class="tab" id="tab-projekte"></section>
+  <section class="tab" id="tab-agenten"></section>
+  <section class="tab" id="tab-entscheidungen"></section>
+  <section class="tab" id="tab-wissen"></section>
 
   <footer class="seite">Diese Seite holt die Daten bei jedem Aufruf live aus der Agentur-Datenbank (Supabase Edge Function) und verbraucht keine Claude-Tokens. Token-Zahlen sind Schätzungen des Managers auf Basis der letzten 100 Einsätze. Diese Datei und ihren Schlüssel geheim halten.</footer>
 </div>
@@ -211,7 +254,11 @@
 <script>
 // Persönlicher Zugangsschlüssel — entspricht settings.dashboard_key.
 // Im Repo steht nur der Platzhalter; die persönliche Kopie trägt den echten Schlüssel.
-const KEY = location.hash.slice(1) || "SCHLUESSEL_HIER_EINSETZEN";
+// location.hash dient primär der Tab-Navigation; nur ein Hash, der KEIN Tab-Name ist,
+// wird (wie bisher) als Schlüssel interpretiert.
+const TAB_NAMEN = ["uebersicht", "systemkarte", "projekte", "agenten", "entscheidungen", "wissen"];
+const startHash = decodeURIComponent(location.hash.slice(1));
+const KEY = (startHash && !TAB_NAMEN.includes(startHash)) ? startHash : "SCHLUESSEL_HIER_EINSETZEN";
 const DATEN_URL = "https://ahrammvkqgpmagyfggmi.supabase.co/functions/v1/dashboard?key=" + encodeURIComponent(KEY);
 
 const AGENT_COLORS = {
@@ -264,8 +311,8 @@ function renderAmpeln(d, g, t, r) {
   const aktiveZiele = g.filter((x) => x.status === "aktiv").length;
 
   document.getElementById("ampeln").innerHTML = `
-    <div class="ampel ${d.length ? "rot" : "gruen"}"><b>${d.length}</b><span>Wartet auf dich</span>
-      <span class="hint">${d.length ? "Offene Entscheidungen — siehe unten" : "Nichts offen — alles läuft"}</span></div>
+    <div class="ampel ${d.length ? "rot" : "gruen"}" data-goto="entscheidungen" title="Zum Entscheidungen-Tab"><b>${d.length}</b><span>Wartet auf dich</span>
+      <span class="hint">${d.length ? "Offene Entscheidungen — Klick öffnet den Tab" : "Nichts offen — alles läuft"}</span></div>
     <div class="ampel ${running ? "gelb" : ""}"><b>${running}</b><span>Läuft gerade</span>
       <span class="hint">${running ? "Agenten sind im Einsatz" : "Kein Agent aktiv"}</span></div>
     <div class="ampel ${heuteErledigt ? "gruen" : ""}"><b>${heuteErledigt}</b><span>Heute erledigt</span>
@@ -308,8 +355,30 @@ function renderProjekte(g, t) {
   return `<h2>Projekte${sbLink("goals / tasks")}</h2><p class="lead">Deine Ziele und wie weit die Agenten damit sind. Jeder Punkt hat die Farbe des zuständigen Agenten.</p>${aktivHtml}${fertigHtml}`;
 }
 
+/* ---------- Übersicht (Tages-Blick) ---------- */
+function renderUebersicht(r, d) {
+  const letzte = r.slice(0, 5);
+  const runsHtml = letzte.length
+    ? `<ul>${letzte.map((x) => `<li><span class="pill ${esc(x.status)}">${esc(x.status)}</span>
+        <strong>${esc(x.agent)}</strong> — ${esc(kurz(x.result_summary || x.task, 110))}
+        <div class="sub">${fmtDate(x.started_at)}</div></li>`).join("")}</ul>`
+    : `<span class="nix">Noch keine Einsätze erfasst.</span>`;
+  const decHtml = d.length
+    ? `<ul class="dec">${d.map((x) => `<li><strong>${esc(x.topic)}</strong>
+        ${x.agent ? `<span class="sub" style="display:inline"> · ${esc(x.agent)}</span>` : ""}
+        <div class="sub">${esc(kurz(x.description, 120))}</div></li>`).join("")}</ul>
+       <p class="sub" style="margin-top:.5rem"><a class="out" href="#entscheidungen">→ Zum Entscheidungen-Tab</a></p>`
+    : `<p class="empty">Keine offenen Entscheidungen — nichts wartet auf dich.</p>`;
+  return `<h2>Tages-Blick</h2>
+    <p class="lead">Das Wichtigste auf einen Blick: die neusten Einsätze und was auf dich wartet. Details in den Tabs oben.</p>
+    <div class="brain">
+      <div><h3>Neuste 5 Einsätze</h3><div class="einsaetze" style="border-top:none;padding-top:0">${runsHtml}</div></div>
+      <div><h3>Offene Entscheidungen (${d.length})</h3>${decHtml}</div>
+    </div>`;
+}
+
 /* ---------- Agenten-Board ---------- */
-function renderBoard(t, r) {
+function renderBoard(t, r, d) {
   const cards = AGENTS.map(([key, name, rolle]) => {
     const farbe = AGENT_COLORS[key] ?? "#888";
     const at = t.filter((x) => x.agent === key);
@@ -328,10 +397,19 @@ function renderBoard(t, r) {
       ? `<ul>${letzte.map((x) => `<li><span class="pill ${esc(x.status)}">${esc(x.status)}</span> ${esc(kurz(x.result_summary || x.task, 110))}<div class="sub">${fmtDate(x.started_at)}</div></li>`).join("")}</ul>`
       : `<span class="nix">Noch keine Einsätze.</span>`;
 
-    return `<article class="agent" style="border-top-color:${farbe}">
-      <header><span class="dot" style="background:${farbe}"></span><h3>${esc(name)}</h3>
-        <button class="frage" type="button" data-agent="${esc(key)}">💬 Frage stellen</button></header>
+    const fragen = d.filter((x) => x.agent === key);
+    const frageHtml = fragen.map((f) => `<div class="frageblock">
+        <h6>❓ Hat eine Frage an dich</h6>
+        <strong>${esc(f.topic)}</strong>
+        <div class="sub">${esc(kurz(f.description, 150))}</div>
+        ${f.options ? `<div class="sub">Optionen: ${esc(f.options)}</div>` : ""}
+        <button class="antwort" type="button" data-topic="${esc(f.topic)}">📋 Antwort kopieren</button>
+      </div>`).join("");
+
+    return `<article class="agent${fragen.length ? " hatfrage" : ""}" style="border-top-color:${farbe}">
+      <header><span class="dot" style="background:${farbe}"></span><h3>${esc(name)}</h3></header>
       <p class="rolle">${esc(rolle)}</p>
+      ${frageHtml}
       <div class="spalten">
         <div class="spalte"><h5>In Arbeit (${inArbeit.length})</h5>${col(inArbeit)}</div>
         <div class="spalte"><h5>Offen (${offen.length})</h5>${col(offen)}</div>
@@ -341,7 +419,7 @@ function renderBoard(t, r) {
       <footer><span>${ar.length} Einsätze erfasst</span><span>≈ ${fmtTokens(tok)} Tokens</span></footer>
     </article>`;
   }).join("");
-  return `<h2>Agenten-Board${sbLink("agent_runs")}</h2><p class="lead">Eine Karte pro Agent: woran er arbeitet, was ansteht, was er zuletzt geliefert hat. Mit «Frage stellen» kopierst du eine fertige Chat-Zeile für den Manager.</p><div class="board">${cards}</div>`;
+  return `<h2>Agenten-Board${sbLink("agent_runs")}</h2><p class="lead">Eine Karte pro Agent: woran er arbeitet, was ansteht, was er zuletzt geliefert hat. Hat ein Agent eine offene Frage an dich, erscheint sie direkt auf seiner Karte.</p><div class="board">${cards}</div>`;
 }
 
 /* ---------- Entscheidungen ---------- */
@@ -399,11 +477,37 @@ function render(data) {
     `Live aus der Datenbank · Stand ${new Date(data.stand).toLocaleString("de-CH", { timeZone: "Europe/Zurich" })} · aktualisiert sich alle 5 Min. automatisch, F5 für sofort`;
 
   renderAmpeln(d, g, t, r);
-  document.getElementById("dyn").innerHTML =
-    renderProjekte(g, t) + renderBoard(t, r) + renderEntscheidungen(d, dh) + renderBrain(k, c, h);
+  document.getElementById("tab-uebersicht").innerHTML = renderUebersicht(r, d);
+  document.getElementById("tab-projekte").innerHTML = renderProjekte(g, t);
+  document.getElementById("tab-agenten").innerHTML = renderBoard(t, r, d);
+  document.getElementById("tab-entscheidungen").innerHTML = renderEntscheidungen(d, dh);
+  document.getElementById("tab-wissen").innerHTML = renderBrain(k, c, h);
+
+  // Zähler-Badge am Agenten-Menüpunkt: offene Fragen, die einem Agent zugeordnet sind
+  const agentKeys = AGENTS.map(([k2]) => k2);
+  const fragenAnAgents = d.filter((x) => agentKeys.includes(x.agent)).length;
+  const badge = document.getElementById("agentenBadge");
+  badge.hidden = !fragenAnAgents;
+  badge.textContent = fragenAnAgents || "";
 }
 
-/* ---------- Frage-Knopf + Toast ---------- */
+/* ---------- Tab-Navigation ---------- */
+function zeigeTab(name) {
+  if (!TAB_NAMEN.includes(name)) name = "uebersicht";
+  TAB_NAMEN.forEach((t2) => {
+    document.getElementById("tab-" + t2).classList.toggle("aktiv", t2 === name);
+  });
+  document.querySelectorAll("#menue a").forEach((a) => {
+    a.classList.toggle("aktiv", a.dataset.tab === name);
+  });
+}
+window.addEventListener("hashchange", () => {
+  const h2 = decodeURIComponent(location.hash.slice(1));
+  if (TAB_NAMEN.includes(h2) || !h2) zeigeTab(h2);
+});
+zeigeTab(TAB_NAMEN.includes(startHash) ? startHash : "uebersicht");
+
+/* ---------- Antwort-Kopierfeld + Toast ---------- */
 let toastTimer;
 function toast(msg) {
   const el = document.getElementById("toast");
@@ -425,12 +529,15 @@ async function kopieren(text) {
 }
 
 document.addEventListener("click", async (ev) => {
-  const btn = ev.target.closest("button.frage");
+  const goto = ev.target.closest(".ampel[data-goto]");
+  if (goto) { location.hash = goto.dataset.goto; return; }
+  const btn = ev.target.closest("button.antwort");
   if (!btn) return;
-  const ok = await kopieren(`Frage an den ${btn.dataset.agent}: `);
+  const vorlage = `Antwort zu «${btn.dataset.topic}»: `;
+  const ok = await kopieren(vorlage);
   toast(ok
-    ? "Kopiert — im Manager-Chat einfügen, die Frage geht wortgleich an diesen Agent."
-    : `Kopieren nicht möglich — tippe im Manager-Chat: «Frage an den ${btn.dataset.agent}: …»`);
+    ? "Kopiert — im Manager-Chat einfügen und Antwort ergänzen"
+    : `Kopieren nicht möglich — tippe im Manager-Chat: ${vorlage}…`);
 });
 
 /* ---------- Laden ---------- */
