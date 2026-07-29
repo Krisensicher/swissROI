@@ -3,60 +3,194 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>swissROI — Live-Dashboard</title>
+<title>swissROI — Kontrollzentrum</title>
 <style>
-  :root { --paper:#fafaf8; --ink:#1a1a1c; --soft:#55555c; --line:#e3e2dd; --card:#fff; --accent:#c8281e; --chip:#f1f0ec; --ok:#2f7d4f; --warn:#8a6d1f; }
-  @media (prefers-color-scheme: dark) { :root { --paper:#161618; --ink:#ecebe7; --soft:#a3a2a9; --line:#2e2e33; --card:#1f1f23; --accent:#e0554b; --chip:#2a2a2f; --ok:#6fbe8f; --warn:#d4b04a; } }
-  * { box-sizing: border-box; }
-  body { margin:0; padding:2rem 1.25rem 4rem; background:var(--paper); color:var(--ink); font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; line-height:1.5; }
-  .wrap { max-width:1060px; margin:0 auto; }
-  header.top { border-bottom:3px solid var(--ink); padding-bottom:1.1rem; margin-bottom:1.8rem; }
+  :root {
+    --paper:#fafaf8; --ink:#1a1a1c; --soft:#55555c; --line:#e3e2dd; --card:#fff;
+    --accent:#c8281e; --chip:#f1f0ec; --ok:#2f7d4f; --warn:#8a6d1f;
+    --okbg:#eef5f0; --rotbg:#faeeed; --warnbg:#f7f2e4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#161618; --ink:#ecebe7; --soft:#a3a2a9; --line:#2e2e33; --card:#1f1f23;
+      --accent:#e0554b; --chip:#2a2a2f; --ok:#6fbe8f; --warn:#d4b04a;
+      --okbg:#1d2621; --rotbg:#2b1e1d; --warnbg:#282318;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2rem 1.25rem 4rem; background:var(--paper); color:var(--ink);
+         font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; line-height:1.5; }
+  .wrap { max-width:1200px; margin:0 auto; }
+  header.top { border-bottom:3px solid var(--ink); padding-bottom:1.1rem; margin-bottom:1.4rem; }
   .eyebrow { text-transform:uppercase; letter-spacing:.14em; font-size:.72rem; color:var(--accent); font-weight:700; margin:0 0 .35rem; }
   h1 { font-size:clamp(1.6rem,4vw,2.3rem); font-weight:800; letter-spacing:-.02em; margin:0; }
   .stand { color:var(--soft); font-size:.82rem; margin-top:.4rem; }
-  h2 { font-size:1rem; text-transform:uppercase; letter-spacing:.1em; border-bottom:1px solid var(--line); padding-bottom:.45rem; margin:2.2rem 0 1rem; }
-  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); }
-  .kpi { background:var(--card); padding:.8rem .9rem; }
-  .kpi b { display:block; font-size:1.45rem; font-variant-numeric:tabular-nums; }
-  .kpi span { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); }
+  h2 { font-size:1rem; text-transform:uppercase; letter-spacing:.1em; border-bottom:1px solid var(--line); padding-bottom:.45rem; margin:2.4rem 0 .35rem; }
+  .lead { font-size:.85rem; color:var(--soft); margin:0 0 1rem; max-width:78ch; }
+  .sub { font-size:.75rem; color:var(--soft); margin-top:.15rem; }
+  .empty { color:var(--soft); font-size:.88rem; background:var(--card); border:1px dashed var(--line); padding:.9rem 1rem; max-width:65ch; }
+  .pill { font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; background:var(--chip); padding:.15rem .5rem; border-radius:2px; font-weight:700; white-space:nowrap; }
+  .pill.done { color:var(--ok); } .pill.failed { color:var(--accent); } .pill.running { color:var(--warn); }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:.45rem; flex:none; }
+  #fehler { display:none; background:var(--card); border-left:3px solid var(--accent); padding:.9rem 1rem; margin-bottom:1.2rem; font-size:.9rem; }
+
+  /* ---- Ampel-Kacheln ---- */
+  .ampeln { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.6rem; }
+  .ampel { background:var(--card); border:1px solid var(--line); border-top:4px solid var(--line); padding:.75rem .9rem .65rem; }
+  .ampel b { display:block; font-size:1.7rem; font-weight:800; font-variant-numeric:tabular-nums; line-height:1.15; }
+  .ampel span { font-size:.68rem; text-transform:uppercase; letter-spacing:.09em; color:var(--soft); }
+  .ampel .hint { display:block; text-transform:none; letter-spacing:0; font-size:.72rem; margin-top:.15rem; }
+  .ampel.gruen { border-top-color:var(--ok); }   .ampel.gruen b { color:var(--ok); }
+  .ampel.rot   { border-top-color:var(--accent); background:var(--rotbg); } .ampel.rot b { color:var(--accent); }
+  .ampel.gelb  { border-top-color:var(--warn); } .ampel.gelb b { color:var(--warn); }
+
+  /* ---- Systemkarte ---- */
+  .karte { background:var(--card); border:1px solid var(--line); padding:1.1rem 1.1rem 1.2rem; }
+  .fluss { display:flex; align-items:stretch; gap:.5rem; flex-wrap:wrap; }
+  .baustein { flex:1 1 240px; background:var(--paper); border:1px solid var(--line); padding:.7rem .85rem; min-width:220px; }
+  .baustein h4 { margin:0 0 .2rem; font-size:.86rem; display:flex; align-items:center; gap:.45rem; }
+  .bnr { flex:none; width:1.25rem; height:1.25rem; border-radius:50%; background:var(--ink); color:var(--paper); font-size:.68rem; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .baustein p { margin:0; font-size:.76rem; color:var(--soft); }
+  .arr { align-self:center; font-size:1.3rem; color:var(--soft); flex:none; padding:0 .1rem; }
+  .stuetzen { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.5rem; margin-top:.55rem; }
+  .rel { font-size:.68rem; color:var(--warn); font-weight:700; text-transform:uppercase; letter-spacing:.06em; display:block; margin-top:.3rem; }
+  .sites { display:flex; flex-direction:column; gap:.3rem; margin-top:.5rem; }
+  .site { font-size:.76rem; display:flex; align-items:center; gap:.45rem; background:var(--chip); padding:.3rem .55rem; }
+  .site .st { margin-left:auto; font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; }
+  .site[data-status="pr-bereit"] .st { color:var(--ok); }
+  .site[data-status="wartet"] .st { color:var(--warn); }
+  @media (max-width:820px) { .fluss { flex-direction:column; } .arr { transform:rotate(90deg); align-self:center; padding:.05rem 0; } }
+
+  /* ---- Projekte ---- */
   .goal { background:var(--card); border:1px solid var(--line); padding:1rem 1.1rem; margin-bottom:1rem; }
   .goal header { display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap; }
   .goal h3 { margin:0; font-size:1rem; }
+  .pnum { display:inline-block; background:var(--ink); color:var(--paper); font-size:.66rem; font-weight:800; padding:.1rem .4rem; border-radius:2px; vertical-align:2px; margin-right:.45rem; }
   .pct { font-size:.78rem; color:var(--soft); font-variant-numeric:tabular-nums; }
-  .bar { height:6px; background:var(--chip); margin:.6rem 0; }
-  .bar div { height:100%; background:var(--ok); }
+  .bar { height:7px; background:var(--chip); margin:.6rem 0; border-radius:4px; overflow:hidden; }
+  .bar div { height:100%; background:var(--ok); border-radius:4px; }
   .desc { font-size:.85rem; color:var(--soft); margin:.3rem 0 .5rem; }
   ul.tasks { list-style:none; margin:.4rem 0 0; padding:0; display:flex; flex-direction:column; gap:.3rem; }
-  .task { font-size:.85rem; } .task em { color:var(--soft); font-style:normal; font-size:.75rem; }
-  .task.erledigt { text-decoration:line-through; color:var(--soft); }
-  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:.45rem; }
+  .task { font-size:.85rem; display:flex; align-items:baseline; }
+  .task em { color:var(--soft); font-style:normal; font-size:.75rem; margin-left:.4rem; white-space:nowrap; }
+  .task.erledigt .tt { text-decoration:line-through; color:var(--soft); }
+  .task.blockiert .tt { color:var(--warn); }
+  details.klapp { margin-top:.8rem; }
+  details.klapp summary { cursor:pointer; font-size:.85rem; font-weight:700; color:var(--soft); padding:.5rem 0; user-select:none; }
+  details.klapp summary:hover { color:var(--ink); }
+  .goal.fertig { border-left:3px solid var(--ok); }
+
+  /* ---- Agenten-Board ---- */
+  .board { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:.8rem; }
+  .agent { background:var(--card); border:1px solid var(--line); border-top:3px solid var(--line); padding:.85rem .95rem; display:flex; flex-direction:column; gap:.6rem; }
+  .agent > header { display:flex; align-items:center; gap:.5rem; }
+  .agent h3 { margin:0; font-size:.95rem; }
+  .agent .rolle { font-size:.76rem; color:var(--soft); margin:-.35rem 0 0; }
+  .agent .frage { margin-left:auto; flex:none; background:var(--chip); border:1px solid var(--line); color:var(--ink); font:inherit; font-size:.72rem; font-weight:700; padding:.25rem .55rem; cursor:pointer; border-radius:3px; }
+  .agent .frage:hover { border-color:var(--ink); }
+  .spalten { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.5rem; }
+  .spalte h5 { margin:0 0 .25rem; font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; color:var(--soft); border-bottom:1px solid var(--line); padding-bottom:.2rem; }
+  .spalte ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.25rem; }
+  .spalte li { font-size:.73rem; line-height:1.3; }
+  .spalte.done li { color:var(--soft); }
+  .spalte .nix { color:var(--soft); font-size:.72rem; }
+  .einsaetze { border-top:1px dashed var(--line); padding-top:.5rem; }
+  .einsaetze h5 { margin:0 0 .3rem; font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; color:var(--soft); }
+  .einsaetze ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.35rem; }
+  .einsaetze li { font-size:.75rem; }
+  .agent footer { margin-top:auto; border-top:1px solid var(--line); padding-top:.4rem; font-size:.72rem; color:var(--soft); display:flex; justify-content:space-between; }
+
+  /* ---- Entscheidungen ---- */
+  ul.dec { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.7rem; }
+  ul.dec li { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--accent); padding:.7rem .9rem; font-size:.88rem; }
+  ul.dec.hist li { border-left-color:var(--ok); }
+  .dec .antwort { margin-top:.3rem; font-size:.8rem; background:var(--okbg); padding:.35rem .55rem; border-radius:3px; }
+
+  /* ---- Second Brain / Tabellen ---- */
   .tbl { overflow-x:auto; border:1px solid var(--line); background:var(--card); }
   table { width:100%; border-collapse:collapse; font-size:.83rem; }
   th { text-align:left; font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); padding:.55rem .8rem; border-bottom:2px solid var(--ink); }
   td { padding:.5rem .8rem; border-bottom:1px solid var(--line); vertical-align:top; }
   tr:last-child td { border-bottom:none; }
   td.num { font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
-  .sub { font-size:.75rem; color:var(--soft); margin-top:.15rem; }
-  .pill { font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; background:var(--chip); padding:.15rem .5rem; border-radius:2px; font-weight:700; }
-  .pill.done { color:var(--ok); } .pill.failed { color:var(--accent); } .pill.running { color:var(--warn); }
-  .empty { color:var(--soft); font-size:.88rem; background:var(--card); border:1px dashed var(--line); padding:.9rem 1rem; max-width:65ch; }
-  ul.dec { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.7rem; }
-  ul.dec li { background:var(--card); border-left:3px solid var(--accent); border-top:1px solid var(--line); border-right:1px solid var(--line); border-bottom:1px solid var(--line); padding:.7rem .9rem; font-size:.88rem; }
-  footer { margin-top:2.5rem; padding-top:.9rem; border-top:1px solid var(--line); font-size:.76rem; color:var(--soft); max-width:72ch; }
-  #fehler { display:none; background:var(--card); border-left:3px solid var(--accent); padding:.9rem 1rem; margin-bottom:1.2rem; font-size:.9rem; }
+  .brain { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1rem; align-items:start; }
+  .brain h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.08em; margin:0 0 .5rem; }
+  .cstat { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-bottom:.6rem; }
+  .cstat div { background:var(--card); text-align:center; padding:.45rem .2rem .35rem; }
+  .cstat b { display:block; font-size:1.15rem; font-variant-numeric:tabular-nums; }
+  .cstat span { font-size:.6rem; text-transform:uppercase; letter-spacing:.05em; color:var(--soft); }
+
+  footer.seite { margin-top:2.5rem; padding-top:.9rem; border-top:1px solid var(--line); font-size:.76rem; color:var(--soft); max-width:78ch; }
+  #toast { position:fixed; left:50%; bottom:1.5rem; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:.82rem; padding:.6rem 1rem; border-radius:4px; opacity:0; pointer-events:none; transition:opacity .25s; max-width:90vw; text-align:center; z-index:9; }
+  #toast.zeigen { opacity:1; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
     <p class="eyebrow">krisensicher.ch · KI-Agenten-Agentur · LIVE</p>
-    <h1>swissROI — Live-Dashboard</h1>
+    <h1>swissROI — Kontrollzentrum</h1>
     <p class="stand" id="stand">Lade Daten …</p>
   </header>
+
   <div id="fehler"></div>
-  <div id="inhalt"></div>
-  <footer>Diese Seite holt die Daten bei jedem Aufruf live aus der Agentur-Datenbank (Supabase Edge Function) und verbraucht keine Claude-Tokens. Token-Zahlen sind Schätzungen des Managers. Diese Datei und ihren Schlüssel geheim halten.</footer>
+  <div id="ampeln" class="ampeln"></div>
+
+  <h2>So arbeitet deine Agentur</h2>
+  <p class="lead">Die 7 Bausteine des Systems und wie sie zusammenhängen. Diese Karte ist statisch — was sich täglich bewegt, steht in den Abschnitten darunter.</p>
+  <div class="karte">
+    <div class="fluss">
+      <div class="baustein">
+        <h4><span class="bnr">1</span>Chat &amp; Manager-Agent</h4>
+        <p>Du gibst Ziele im Claude-Chat vor; der Manager zerlegt sie in Aufgaben und delegiert an 6 Spezial-Agenten (SEO, Content, Strategie, Daten, Web, Research).</p>
+      </div>
+      <div class="arr">→</div>
+      <div class="baustein">
+        <h4><span class="bnr">2</span>GitHub-Repos</h4>
+        <p>Jede Website hat ihr eigenes Code-Repo. Der Web-Agent arbeitet auf Branches — live geht nichts ohne deine Freigabe.</p>
+      </div>
+      <div class="arr">→</div>
+      <div class="baustein">
+        <h4><span class="bnr">3</span>Vercel → Websites</h4>
+        <p>Jeder Push baut automatisch eine Vorschau; der Produktions-Branch ist die Live-Website.</p>
+        <!-- Website-Status: HARDCODED — wird vom Manager gepflegt (liegt nicht strukturiert in der Datenbank). -->
+        <div class="sites">
+          <span class="site" data-status="pr-bereit">sanitaer-notdienst.ch <span class="st">PR bereit</span></span>
+          <span class="site" data-status="wartet">Wasserschaden-Hub <span class="st">wartet auf Repo/Domain</span></span>
+          <span class="site" data-status="wartet">Kellerabdichtungs-Hub <span class="st">wartet auf Repo/Domain</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="stuetzen">
+      <div class="baustein">
+        <h4><span class="bnr">4</span>Supabase-Gedächtnis</h4>
+        <p>Das Second Brain: Ziele, Aufgaben, Einsätze, Keywords, Content, Entscheidungen — alles, was die Agentur weiss.</p>
+        <span class="rel">↔ Manager &amp; Agenten lesen und schreiben hier</span>
+      </div>
+      <div class="baustein">
+        <h4><span class="bnr">5</span>Dieses Dashboard</h4>
+        <p>Deine lokale Sicht auf das Gedächtnis — immer live, kostet null Tokens pro Ansicht.</p>
+        <span class="rel">← liest Supabase alle 5 Minuten</span>
+      </div>
+      <div class="baustein">
+        <h4><span class="bnr">6</span>Connectoren</h4>
+        <p>Die Werkzeuge der Agenten: Semrush (SEO-Daten), Supabase (Datenbank), GitHub (Code).</p>
+        <span class="rel">→ von den Agenten genutzt</span>
+      </div>
+      <div class="baustein">
+        <h4><span class="bnr">7</span>04:00-Takt</h4>
+        <p>Weckt den Manager jeden Morgen: wichtigste offene Aufgaben abarbeiten, Kurz-Report schreiben.</p>
+        <span class="rel">→ startet den Manager automatisch</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="dyn"></div>
+
+  <footer class="seite">Diese Seite holt die Daten bei jedem Aufruf live aus der Agentur-Datenbank (Supabase Edge Function) und verbraucht keine Claude-Tokens. Token-Zahlen sind Schätzungen des Managers auf Basis der letzten 100 Einsätze. Diese Datei und ihren Schlüssel geheim halten.</footer>
 </div>
+<div id="toast"></div>
+
 <script>
 // Persönlicher Zugangsschlüssel — entspricht settings.dashboard_key.
 // Im Repo steht nur der Platzhalter; die persönliche Kopie trägt den echten Schlüssel.
@@ -69,102 +203,214 @@ const AGENT_COLORS = {
   "content-agent": "#b0691c",
   "strategie-agent": "#6b4fa1",
   "daten-agent": "#2f7d4f",
+  "web-agent": "#0e7d8a",
+  "research-agent": "#8a5a83",
 };
+
+// [Schlüssel, Anzeigename, Kurzrolle]
+const AGENTS = [
+  ["manager", "Manager", "Koordiniert alles, delegiert an die Spezialisten, eskaliert Wichtiges an dich"],
+  ["seo-agent", "SEO-Agent", "Keywords, Konkurrenz, Backlinks und Site-Audits (Semrush)"],
+  ["content-agent", "Content-Agent", "Blog-Artikel, Social Media und Texte aller Art"],
+  ["strategie-agent", "Strategie-Agent", "Marktanalyse, Planung und Priorisierung"],
+  ["daten-agent", "Daten-Agent", "Datenbank, Auswertungen und Migrationen"],
+  ["web-agent", "Web-Agent", "Baut und pflegt die Websites (GitHub + Vercel), technisches SEO"],
+  ["research-agent", "Research-Agent", "Allgemeine Recherche: Markt, Anbieter, Preise, Fakten"],
+];
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-
+const kurz = (s, n = 110) => { s = String(s ?? ""); return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s; };
 const fmtDate = (s) =>
   s ? new Date(s).toLocaleString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
-
+const fmtTag = (s) =>
+  s ? new Date(s).toLocaleDateString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", year: "numeric" }) : "—";
 const fmtTokens = (n) =>
   n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)} Mio.` : n >= 1000 ? `${Math.round(n / 1000)}k` : String(n);
+const zhTag = (s) => new Date(s).toLocaleDateString("de-CH", { timeZone: "Europe/Zurich" });
 
+/* ---------- Ampel-Kacheln ---------- */
+function renderAmpeln(d, g, t, r) {
+  const heute = zhTag(new Date());
+  const woche = Date.now() - 7 * 864e5;
+  const running = r.filter((x) => x.status === "running").length;
+  const heuteErledigt = r.filter((x) => x.status === "done" && zhTag(x.finished_at ?? x.started_at) === heute).length;
+  const fehler7 = r.filter((x) => x.status === "failed" && new Date(x.started_at).getTime() >= woche).length;
+  const tok7 = r.filter((x) => new Date(x.started_at).getTime() >= woche)
+    .reduce((s, x) => s + (x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0), 0);
+  const aktiveZiele = g.filter((x) => x.status === "aktiv").length;
+
+  document.getElementById("ampeln").innerHTML = `
+    <div class="ampel ${d.length ? "rot" : "gruen"}"><b>${d.length}</b><span>Wartet auf dich</span>
+      <span class="hint">${d.length ? "Offene Entscheidungen — siehe unten" : "Nichts offen — alles läuft"}</span></div>
+    <div class="ampel ${running ? "gelb" : ""}"><b>${running}</b><span>Läuft gerade</span>
+      <span class="hint">${running ? "Agenten sind im Einsatz" : "Kein Agent aktiv"}</span></div>
+    <div class="ampel ${heuteErledigt ? "gruen" : ""}"><b>${heuteErledigt}</b><span>Heute erledigt</span>
+      <span class="hint">Abgeschlossene Einsätze heute</span></div>
+    <div class="ampel ${fehler7 ? "rot" : "gruen"}"><b>${fehler7}</b><span>Fehler (7 Tage)</span>
+      <span class="hint">${fehler7 ? "Manager im Chat fragen" : "Keine Fehler"}</span></div>
+    <div class="ampel"><b>≈ ${fmtTokens(tok7)}</b><span>Tokens (7 Tage)</span>
+      <span class="hint">Schätzung des Managers</span></div>
+    <div class="ampel"><b>${aktiveZiele}</b><span>Aktive Projekte</span>
+      <span class="hint">Ziele in Arbeit</span></div>`;
+}
+
+/* ---------- Projekte ---------- */
+function renderProjekte(g, t) {
+  const karte = (goal, fertig) => {
+    const gt = t.filter((x) => x.goal_id === goal.id);
+    const done = gt.filter((x) => x.status === "erledigt").length;
+    const pct = gt.length ? Math.round((done / gt.length) * 100) : 0;
+    const list = gt.map((x) => `<li class="task ${esc(x.status)}">
+        <span class="dot" style="background:${AGENT_COLORS[x.agent] ?? "#888"}"></span>
+        <span class="tt">${esc(x.title)}</span><em>· ${esc(x.agent)} · ${esc(x.status)}</em></li>`).join("");
+    return `<article class="goal${fertig ? " fertig" : ""}">
+      <header><h3><span class="pnum">P${goal.priority}</span>${esc(goal.title)}</h3>
+        <span class="pct">${fertig ? `erreicht am ${fmtTag(goal.updated_at)}` : `${done}/${gt.length} Aufgaben (${pct}%)`}</span></header>
+      <div class="bar"><div style="width:${fertig ? 100 : pct}%"></div></div>
+      ${goal.description ? `<p class="desc">${esc(goal.description)}</p>` : ""}
+      ${fertig ? "" : `<ul class="tasks">${list || "<li class='task'><em>Noch keine Aufgaben geplant — passiert beim nächsten Takt.</em></li>"}</ul>`}
+    </article>`;
+  };
+
+  const aktive = g.filter((x) => x.status === "aktiv");
+  const erreichte = g.filter((x) => x.status === "erreicht");
+  const aktivHtml = aktive.length
+    ? aktive.map((x) => karte(x, false)).join("")
+    : `<p class="empty">Keine aktiven Projekte. Gib dem Manager ein Ziel — z.&nbsp;B. «Neues Ziel: …» — und der tägliche Takt arbeitet automatisch daran.</p>`;
+  const fertigHtml = erreichte.length
+    ? `<details class="klapp"><summary>Abgeschlossene Projekte (${erreichte.length})</summary>
+       ${erreichte.map((x) => karte(x, true)).join("")}</details>`
+    : "";
+  return `<h2>Projekte</h2><p class="lead">Deine Ziele und wie weit die Agenten damit sind. Jeder Punkt hat die Farbe des zuständigen Agenten.</p>${aktivHtml}${fertigHtml}`;
+}
+
+/* ---------- Agenten-Board ---------- */
+function renderBoard(t, r) {
+  const cards = AGENTS.map(([key, name, rolle]) => {
+    const farbe = AGENT_COLORS[key] ?? "#888";
+    const at = t.filter((x) => x.agent === key);
+    const inArbeit = at.filter((x) => x.status === "in_arbeit");
+    const offen = at.filter((x) => x.status === "offen" || x.status === "blockiert");
+    const erledigt = at.filter((x) => x.status === "erledigt")
+      .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at)).slice(0, 5);
+    const ar = r.filter((x) => x.agent === key);
+    const letzte = ar.slice(0, 3);
+    const tok = ar.reduce((s, x) => s + (x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0), 0);
+
+    const col = (items, cls = "") => items.length
+      ? `<ul>${items.map((x) => `<li>${x.status === "blockiert" ? "⛔ " : ""}${esc(kurz(x.title, 70))}</li>`).join("")}</ul>`
+      : `<span class="nix">—</span>`;
+    const einsaetze = letzte.length
+      ? `<ul>${letzte.map((x) => `<li><span class="pill ${esc(x.status)}">${esc(x.status)}</span> ${esc(kurz(x.result_summary || x.task, 110))}<div class="sub">${fmtDate(x.started_at)}</div></li>`).join("")}</ul>`
+      : `<span class="nix">Noch keine Einsätze.</span>`;
+
+    return `<article class="agent" style="border-top-color:${farbe}">
+      <header><span class="dot" style="background:${farbe}"></span><h3>${esc(name)}</h3>
+        <button class="frage" type="button" data-agent="${esc(key)}">💬 Frage stellen</button></header>
+      <p class="rolle">${esc(rolle)}</p>
+      <div class="spalten">
+        <div class="spalte"><h5>In Arbeit (${inArbeit.length})</h5>${col(inArbeit)}</div>
+        <div class="spalte"><h5>Offen (${offen.length})</h5>${col(offen)}</div>
+        <div class="spalte done"><h5>Erledigt (letzte 5)</h5>${col(erledigt)}</div>
+      </div>
+      <div class="einsaetze"><h5>Letzte Einsätze</h5>${einsaetze}</div>
+      <footer><span>${ar.length} Einsätze erfasst</span><span>≈ ${fmtTokens(tok)} Tokens</span></footer>
+    </article>`;
+  }).join("");
+  return `<h2>Agenten-Board</h2><p class="lead">Eine Karte pro Agent: woran er arbeitet, was ansteht, was er zuletzt geliefert hat. Mit «Frage stellen» kopierst du eine fertige Chat-Zeile für den Manager.</p><div class="board">${cards}</div>`;
+}
+
+/* ---------- Entscheidungen ---------- */
+function renderEntscheidungen(offen, hist) {
+  const offenHtml = offen.length
+    ? `<ul class="dec">${offen.map((x) => `<li><strong>${esc(x.topic)}</strong><br>${esc(x.description)}
+        ${x.options ? `<div class="sub">Optionen: ${esc(x.options)}</div>` : ""}
+        <div class="sub">Offen seit ${fmtTag(x.created_at)} — Antwort einfach im Manager-Chat geben.</div></li>`).join("")}</ul>`
+    : `<p class="empty">Keine offenen Entscheidungen — nichts wartet auf dich.</p>`;
+  const histHtml = hist.length
+    ? `<details class="klapp"><summary>Entschiedene Fragen (${hist.length}, Historie)</summary>
+       <ul class="dec hist">${hist.map((x) => `<li><strong>${esc(x.topic)}</strong>
+         <div class="sub">${esc(kurz(x.description, 160))}</div>
+         <div class="antwort"><strong>Deine Entscheidung${x.decided_at ? ` (${fmtTag(x.decided_at)})` : ""}:</strong> ${esc(x.decision ?? "verworfen")}</div></li>`).join("")}</ul></details>`
+    : "";
+  return `<h2>Entscheidungen</h2><p class="lead">Hier landet alles, was Geld kostet, publiziert wird oder die Strategie ändert — nichts davon passiert ohne dich.</p>${offenHtml}${histHtml}`;
+}
+
+/* ---------- Second Brain ---------- */
+function renderBrain(k, c, h) {
+  const topK = [...k].sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0)).slice(0, 10);
+  const kwRows = topK.map((x) => `<tr><td>${esc(x.keyword)}</td><td class="num">${x.volume ?? "—"}</td><td class="num">${x.difficulty ?? "—"}</td></tr>`).join("");
+
+  const stati = ["entwurf", "review", "freigegeben", "publiziert"];
+  const cCounts = stati.map((s) => c.filter((x) => x.status === s).length);
+  const cRows = c.map((x) => `<tr><td>${esc(kurz(x.title, 60))}</td><td>${esc(x.type)}</td><td><span class="pill">${esc(x.status)}</span></td></tr>`).join("");
+
+  const hbRows = h.map((x) => `<tr><td>${fmtTag(x.report_date)}${x.content ? `<div class="sub">${esc(kurz(x.content, 130))}</div>` : ""}</td>
+    <td class="num">${x.runs_total}</td><td class="num">${x.runs_failed}</td>
+    <td class="num">≈ ${fmtTokens((x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0))}</td></tr>`).join("");
+
+  return `<h2>Second Brain — Wissen</h2>
+  <p class="lead">Was die Agentur bereits gesammelt hat: Keyword-Daten, die Content-Pipeline und die täglichen Takt-Reports.</p>
+  <div class="brain">
+    <div><h3>Top-Keywords <span class="sub" style="display:inline">(${k.length} zuletzt erfasste)</span></h3>
+      <div class="tbl"><table><thead><tr><th>Keyword</th><th style="text-align:right">Volumen</th><th style="text-align:right">Difficulty</th></tr></thead>
+      <tbody>${kwRows || `<tr><td colspan="3"><em>Noch keine Keywords — beauftrage den SEO-Agent.</em></td></tr>`}</tbody></table></div></div>
+    <div><h3>Content-Pipeline <span class="sub" style="display:inline">(neueste 10)</span></h3>
+      <div class="cstat">${stati.map((s, i) => `<div><b>${cCounts[i]}</b><span>${s}</span></div>`).join("")}</div>
+      <div class="tbl"><table><thead><tr><th>Titel</th><th>Typ</th><th>Status</th></tr></thead>
+      <tbody>${cRows || `<tr><td colspan="3"><em>Noch keine Inhalte — beauftrage den Content-Agent.</em></td></tr>`}</tbody></table></div></div>
+    <div><h3>Arbeits-Takt (letzte 7 Tage)</h3>
+      <div class="tbl"><table><thead><tr><th>Report</th><th style="text-align:right">Läufe</th><th style="text-align:right">Fehler</th><th style="text-align:right">Tokens</th></tr></thead>
+      <tbody>${hbRows || `<tr><td colspan="4"><em>Noch kein Takt-Report.</em></td></tr>`}</tbody></table></div></div>
+  </div>`;
+}
+
+/* ---------- Zusammenbau ---------- */
 function render(data) {
   const g = data.goals ?? [], t = data.tasks ?? [], r = data.runs ?? [];
-  const d = data.decisions ?? [], c = data.content ?? [], k = data.keywords ?? [], h = data.heartbeats ?? [];
-
-  const tokIn = r.reduce((s, x) => s + (x.input_tokens_est ?? 0), 0);
-  const tokOut = r.reduce((s, x) => s + (x.output_tokens_est ?? 0), 0);
-  const failed = r.filter((x) => x.status === "failed").length;
-  const running = r.filter((x) => x.status === "running").length;
-  const activeGoals = g.filter((x) => x.status === "aktiv");
-
-  const goalRows = activeGoals.length === 0
-    ? `<p class="empty">Keine aktiven Ziele. Gib dem Manager ein Ziel — z.&nbsp;B. «Neues Ziel: 100 relevante Keywords aufbauen» — und der tägliche Takt arbeitet automatisch daran.</p>`
-    : activeGoals.map((goal) => {
-      const gt = t.filter((x) => x.goal_id === goal.id);
-      const done = gt.filter((x) => x.status === "erledigt").length;
-      const pct = gt.length ? Math.round((done / gt.length) * 100) : 0;
-      const taskList = gt.map((x) =>
-        `<li class="task ${esc(x.status)}"><span class="dot" style="background:${AGENT_COLORS[x.agent] ?? "#888"}"></span>${esc(x.title)} <em>· ${esc(x.agent)} · ${esc(x.status)}</em></li>`).join("");
-      return `<article class="goal">
-        <header><h3>P${goal.priority} · ${esc(goal.title)}</h3><span class="pct">${done}/${gt.length} Aufgaben (${pct}%)</span></header>
-        <div class="bar"><div style="width:${pct}%"></div></div>
-        ${goal.description ? `<p class="desc">${esc(goal.description)}</p>` : ""}
-        <ul class="tasks">${taskList || "<li class='task'><em>Noch keine Aufgaben geplant — passiert beim nächsten Takt.</em></li>"}</ul>
-      </article>`;
-    }).join("");
-
-  const runRows = r.map((x) => `<tr>
-      <td><span class="dot" style="background:${AGENT_COLORS[x.agent] ?? "#888"}"></span>${esc(x.agent)}</td>
-      <td>${esc(x.task)}${x.result_summary ? `<div class="sub">${esc(x.result_summary)}</div>` : ""}</td>
-      <td><span class="pill ${esc(x.status)}">${esc(x.status)}</span></td>
-      <td class="num">${fmtTokens((x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0))}</td>
-      <td class="num">${fmtDate(x.started_at)}</td>
-    </tr>`).join("");
-
-  const decisionRows = d.length === 0
-    ? `<p class="empty">Keine offenen Entscheidungen — nichts wartet auf dich.</p>`
-    : `<ul class="dec">${d.map((x) => `<li><strong>${esc(x.topic)}</strong><br>${esc(x.description)}${x.options ? `<div class="sub">Optionen: ${esc(x.options)}</div>` : ""}</li>`).join("")}</ul>`;
-
-  const kwRows = k.map((x) => `<tr><td>${esc(x.keyword)}</td><td>${esc(x.database)}</td><td class="num">${x.volume ?? "—"}</td><td class="num">${x.difficulty ?? "—"}</td></tr>`).join("");
-  const contentRows = c.map((x) => `<tr><td>${esc(x.title)}</td><td>${esc(x.type)}</td><td><span class="pill">${esc(x.status)}</span></td><td class="num">${fmtDate(x.created_at)}</td></tr>`).join("");
-  const hbRows = h.map((x) => `<tr><td>${esc(x.report_date)}</td><td class="num">${x.runs_total}</td><td class="num">${x.runs_failed}</td><td class="num">${fmtTokens((x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0))}</td></tr>`).join("");
+  const d = data.decisions ?? [], dh = data.decisions_entschieden ?? [];
+  const c = data.content ?? [], k = data.keywords ?? [], h = data.heartbeats ?? [];
 
   document.getElementById("stand").textContent =
     `Live aus der Datenbank · Stand ${new Date(data.stand).toLocaleString("de-CH", { timeZone: "Europe/Zurich" })} · aktualisiert sich alle 5 Min. automatisch, F5 für sofort`;
 
-  document.getElementById("inhalt").innerHTML = `
-  <div class="kpis">
-    <div class="kpi"><b>${activeGoals.length}</b><span>Aktive Ziele</span></div>
-    <div class="kpi"><b>${t.filter((x) => x.status === "offen" || x.status === "in_arbeit").length}</b><span>Offene Aufgaben</span></div>
-    <div class="kpi"><b>${r.length}${running ? ` (${running} läuft)` : ""}</b><span>Letzte Einsätze</span></div>
-    <div class="kpi"><b>${failed}</b><span>Fehler</span></div>
-    <div class="kpi"><b>${d.length}</b><span>Warten auf dich</span></div>
-    <div class="kpi"><b>≈ ${fmtTokens(tokIn + tokOut)}</b><span>Tokens (Schätzung)</span></div>
-  </div>
-
-  <h2>Ziele &amp; Fortschritt</h2>
-  ${goalRows}
-
-  <h2>Offene Entscheidungen</h2>
-  ${decisionRows}
-
-  <h2>Letzte Agent-Einsätze</h2>
-  <div class="tbl"><table>
-    <thead><tr><th>Agent</th><th>Aufgabe</th><th>Status</th><th style="text-align:right">Tokens ≈</th><th style="text-align:right">Wann</th></tr></thead>
-    <tbody>${runRows || `<tr><td colspan="5"><em>Noch keine Einsätze.</em></td></tr>`}</tbody>
-  </table></div>
-
-  <h2>Second Brain — Wissen</h2>
-  <h2 style="border:none;font-size:.8rem;margin:1.2rem 0 .5rem">Keywords (neueste)</h2>
-  <div class="tbl"><table>
-    <thead><tr><th>Keyword</th><th>DB</th><th style="text-align:right">Volumen</th><th style="text-align:right">Difficulty</th></tr></thead>
-    <tbody>${kwRows || `<tr><td colspan="4"><em>Noch keine Keywords — beauftrage den SEO-Agent.</em></td></tr>`}</tbody>
-  </table></div>
-  <h2 style="border:none;font-size:.8rem;margin:1.2rem 0 .5rem">Content-Pipeline (neueste)</h2>
-  <div class="tbl"><table>
-    <thead><tr><th>Titel</th><th>Typ</th><th>Status</th><th style="text-align:right">Erstellt</th></tr></thead>
-    <tbody>${contentRows || `<tr><td colspan="4"><em>Noch keine Inhalte — beauftrage den Content-Agent.</em></td></tr>`}</tbody>
-  </table></div>
-  <h2 style="border:none;font-size:.8rem;margin:1.2rem 0 .5rem">Arbeits-Takt (letzte 7 Tage)</h2>
-  <div class="tbl"><table>
-    <thead><tr><th>Datum</th><th style="text-align:right">Läufe</th><th style="text-align:right">Fehler</th><th style="text-align:right">Tokens ≈</th></tr></thead>
-    <tbody>${hbRows || `<tr><td colspan="4"><em>Erster Takt: morgen 07:00 Uhr.</em></td></tr>`}</tbody>
-  </table></div>`;
+  renderAmpeln(d, g, t, r);
+  document.getElementById("dyn").innerHTML =
+    renderProjekte(g, t) + renderBoard(t, r) + renderEntscheidungen(d, dh) + renderBrain(k, c, h);
 }
 
+/* ---------- Frage-Knopf + Toast ---------- */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("zeigen");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("zeigen"), 3500);
+}
+
+async function kopieren(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (_) {}
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove(); return ok;
+  } catch (_) { return false; }
+}
+
+document.addEventListener("click", async (ev) => {
+  const btn = ev.target.closest("button.frage");
+  if (!btn) return;
+  const ok = await kopieren(`Frage an den ${btn.dataset.agent}: `);
+  toast(ok
+    ? "Kopiert — im Manager-Chat einfügen, die Frage geht wortgleich an diesen Agent."
+    : `Kopieren nicht möglich — tippe im Manager-Chat: «Frage an den ${btn.dataset.agent}: …»`);
+});
+
+/* ---------- Laden ---------- */
 async function laden() {
   const fehler = document.getElementById("fehler");
   try {
