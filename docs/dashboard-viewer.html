@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>swissROI — Kontrollzentrum</title>
+<style>
+  :root {
+    --paper:#fafaf8; --ink:#1a1a1c; --soft:#55555c; --line:#e3e2dd; --card:#fff;
+    --accent:#c8281e; --chip:#f1f0ec; --ok:#2f7d4f; --warn:#8a6d1f;
+    --okbg:#eef5f0; --rotbg:#faeeed; --warnbg:#f7f2e4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#161618; --ink:#ecebe7; --soft:#a3a2a9; --line:#2e2e33; --card:#1f1f23;
+      --accent:#e0554b; --chip:#2a2a2f; --ok:#6fbe8f; --warn:#d4b04a;
+      --okbg:#1d2621; --rotbg:#2b1e1d; --warnbg:#282318;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2rem 1.25rem 4rem; background:var(--paper); color:var(--ink);
+         font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; line-height:1.5; }
+  .wrap { max-width:1200px; margin:0 auto; }
+  header.top { border-bottom:3px solid var(--ink); padding-bottom:1.1rem; margin-bottom:1.4rem; }
+  .eyebrow { text-transform:uppercase; letter-spacing:.14em; font-size:.72rem; color:var(--accent); font-weight:700; margin:0 0 .35rem; }
+  h1 { font-size:clamp(1.6rem,4vw,2.3rem); font-weight:800; letter-spacing:-.02em; margin:0; }
+  .stand { color:var(--soft); font-size:.82rem; margin-top:.4rem; }
+  h2 { font-size:1rem; text-transform:uppercase; letter-spacing:.1em; border-bottom:1px solid var(--line); padding-bottom:.45rem; margin:2.4rem 0 .35rem; display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap; }
+
+  /* ---- Link-Ausgänge (dezent) ---- */
+  a.out { margin-left:auto; font-size:.68rem; font-weight:600; letter-spacing:.02em; text-transform:none; color:var(--soft); text-decoration:none; border-bottom:1px dotted var(--line); white-space:nowrap; }
+  a.out:hover { color:var(--accent); border-bottom-color:var(--accent); }
+  .blinks { display:flex; gap:.8rem; flex-wrap:wrap; margin-top:.35rem; }
+  .blinks a.out, .site a.out { margin-left:0; }
+  .lead { font-size:.85rem; color:var(--soft); margin:0 0 1rem; max-width:78ch; }
+  .sub { font-size:.75rem; color:var(--soft); margin-top:.15rem; }
+  .empty { color:var(--soft); font-size:.88rem; background:var(--card); border:1px dashed var(--line); padding:.9rem 1rem; max-width:65ch; }
+  .pill { font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; background:var(--chip); padding:.15rem .5rem; border-radius:2px; font-weight:700; white-space:nowrap; }
+  .pill.done { color:var(--ok); } .pill.failed { color:var(--accent); } .pill.running { color:var(--warn); }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:.45rem; flex:none; }
+  #fehler { display:none; background:var(--card); border-left:3px solid var(--accent); padding:.9rem 1rem; margin-bottom:1.2rem; font-size:.9rem; }
+
+  /* ---- Menü-Navigation + fixierter Kopf ---- */
+  .fixkopf { position:sticky; top:0; z-index:6; background:var(--paper); padding-top:.2rem; margin-bottom:1.4rem;
+             box-shadow:0 6px 8px -8px rgba(0,0,0,.25); }
+  nav.menue { display:flex; gap:.15rem; overflow-x:auto; border-bottom:2px solid var(--ink); margin-bottom:.7rem;
+              -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
+  nav.menue a { flex:none; padding:.55rem .85rem .45rem; font-size:.78rem; font-weight:700; text-transform:uppercase;
+                letter-spacing:.06em; color:var(--soft); text-decoration:none; white-space:nowrap;
+                border-bottom:3px solid transparent; margin-bottom:-2px; }
+  nav.menue a:hover { color:var(--ink); }
+  nav.menue a.aktiv { color:var(--ink); border-bottom-color:var(--accent); }
+  .badge { display:inline-block; background:var(--accent); color:#fff; border-radius:9px; padding:0 .38rem;
+           font-size:.64rem; line-height:1.5; margin-left:.35rem; vertical-align:1px; font-variant-numeric:tabular-nums; }
+  .fixkopf .ampeln { padding-bottom:.7rem; }
+  .fixkopf .ampel b { font-size:1.35rem; }
+  .ampel[data-goto] { cursor:pointer; }
+  .ampel[data-goto]:hover { border-color:var(--accent); }
+  @media (max-width:700px) { .fixkopf .ampel .hint { display:none; } }
+
+  /* ---- Tabs ---- */
+  .tab { display:none; }
+  .tab.aktiv { display:block; }
+
+  /* ---- Ampel-Kacheln ---- */
+  .ampeln { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.6rem; }
+  .ampel { background:var(--card); border:1px solid var(--line); border-top:4px solid var(--line); padding:.75rem .9rem .65rem; }
+  .ampel b { display:block; font-size:1.7rem; font-weight:800; font-variant-numeric:tabular-nums; line-height:1.15; }
+  .ampel span { font-size:.68rem; text-transform:uppercase; letter-spacing:.09em; color:var(--soft); }
+  .ampel .hint { display:block; text-transform:none; letter-spacing:0; font-size:.72rem; margin-top:.15rem; }
+  .ampel.gruen { border-top-color:var(--ok); }   .ampel.gruen b { color:var(--ok); }
+  .ampel.rot   { border-top-color:var(--accent); background:var(--rotbg); } .ampel.rot b { color:var(--accent); }
+  .ampel.gelb  { border-top-color:var(--warn); } .ampel.gelb b { color:var(--warn); }
+
+  /* ---- Systemkarte ---- */
+  .karte { background:var(--card); border:1px solid var(--line); padding:1.1rem 1.1rem 1.2rem; }
+  .fluss { display:flex; align-items:stretch; gap:.5rem; flex-wrap:wrap; }
+  .baustein { flex:1 1 240px; background:var(--paper); border:1px solid var(--line); padding:.7rem .85rem; min-width:220px; }
+  .baustein h4 { margin:0 0 .2rem; font-size:.86rem; display:flex; align-items:center; gap:.45rem; }
+  .bnr { flex:none; width:1.25rem; height:1.25rem; border-radius:50%; background:var(--ink); color:var(--paper); font-size:.68rem; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .baustein p { margin:0; font-size:.76rem; color:var(--soft); }
+  .arr { align-self:center; font-size:1.3rem; color:var(--soft); flex:none; padding:0 .1rem; }
+  .stuetzen { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.5rem; margin-top:.55rem; }
+  .rel { font-size:.68rem; color:var(--warn); font-weight:700; text-transform:uppercase; letter-spacing:.06em; display:block; margin-top:.3rem; }
+  .sites { display:flex; flex-direction:column; gap:.3rem; margin-top:.5rem; }
+  .site { font-size:.76rem; display:flex; align-items:center; gap:.45rem; background:var(--chip); padding:.3rem .55rem; flex-wrap:wrap; }
+  .site .st { margin-left:auto; font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; }
+  .site[data-status="pr-bereit"] .st { color:var(--ok); }
+  .site[data-status="wartet"] .st { color:var(--warn); }
+  @media (max-width:820px) { .fluss { flex-direction:column; } .arr { transform:rotate(90deg); align-self:center; padding:.05rem 0; } }
+
+  /* ---- Projekte ---- */
+  .goal { background:var(--card); border:1px solid var(--line); padding:1rem 1.1rem; margin-bottom:1rem; }
+  .goal header { display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap; }
+  .goal h3 { margin:0; font-size:1rem; }
+  .pnum { display:inline-block; background:var(--ink); color:var(--paper); font-size:.66rem; font-weight:800; padding:.1rem .4rem; border-radius:2px; vertical-align:2px; margin-right:.45rem; }
+  .pct { font-size:.78rem; color:var(--soft); font-variant-numeric:tabular-nums; }
+  .bar { height:7px; background:var(--chip); margin:.6rem 0; border-radius:4px; overflow:hidden; }
+  .bar div { height:100%; background:var(--ok); border-radius:4px; }
+  .desc { font-size:.85rem; color:var(--soft); margin:.3rem 0 .5rem; }
+  ul.tasks { list-style:none; margin:.4rem 0 0; padding:0; display:flex; flex-direction:column; gap:.3rem; }
+  .task { font-size:.85rem; display:flex; align-items:baseline; }
+  .task em { color:var(--soft); font-style:normal; font-size:.75rem; margin-left:.4rem; white-space:nowrap; }
+  .task.erledigt .tt { text-decoration:line-through; color:var(--soft); }
+  .task.blockiert .tt { color:var(--warn); }
+  details.klapp { margin-top:.8rem; }
+  details.klapp summary { cursor:pointer; font-size:.85rem; font-weight:700; color:var(--soft); padding:.5rem 0; user-select:none; }
+  details.klapp summary:hover { color:var(--ink); }
+  .goal.fertig { border-left:3px solid var(--ok); }
+
+  /* ---- Agenten-Board ---- */
+  .board { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:.8rem; }
+  .agent { background:var(--card); border:1px solid var(--line); border-top:3px solid var(--line); padding:.85rem .95rem; display:flex; flex-direction:column; gap:.6rem; }
+  .agent > header { display:flex; align-items:center; gap:.5rem; }
+  .agent h3 { margin:0; font-size:.95rem; }
+  .agent .rolle { font-size:.76rem; color:var(--soft); margin:-.35rem 0 0; }
+  .agent.hatfrage { border-left-color:var(--accent); border-right-color:var(--accent); border-bottom-color:var(--accent); }
+  .frageblock { background:var(--rotbg); border:1px solid var(--accent); padding:.6rem .75rem; font-size:.8rem; border-radius:3px; }
+  .frageblock h6 { margin:0 0 .25rem; font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); }
+  .frageblock .antwort { display:inline-block; margin-top:.45rem; background:var(--card); border:1px solid var(--accent); color:var(--accent); font:inherit; font-size:.72rem; font-weight:700; padding:.3rem .6rem; cursor:pointer; border-radius:3px; }
+  .frageblock .antwort:hover { background:var(--accent); color:#fff; }
+  .spalten { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.5rem; }
+  .spalte h5 { margin:0 0 .25rem; font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; color:var(--soft); border-bottom:1px solid var(--line); padding-bottom:.2rem; }
+  .spalte ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.25rem; }
+  .spalte li { font-size:.73rem; line-height:1.3; }
+  .spalte.done li { color:var(--soft); }
+  .spalte .nix { color:var(--soft); font-size:.72rem; }
+  .einsaetze { border-top:1px dashed var(--line); padding-top:.5rem; }
+  .einsaetze h5 { margin:0 0 .3rem; font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; color:var(--soft); }
+  .einsaetze ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.35rem; }
+  .einsaetze li { font-size:.75rem; }
+  .agent footer { margin-top:auto; border-top:1px solid var(--line); padding-top:.4rem; font-size:.72rem; color:var(--soft); display:flex; justify-content:space-between; }
+
+  /* ---- Entscheidungen ---- */
+  ul.dec { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.7rem; }
+  ul.dec li { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--accent); padding:.7rem .9rem; font-size:.88rem; }
+  ul.dec.hist li { border-left-color:var(--ok); }
+  .dec .antwort { margin-top:.3rem; font-size:.8rem; background:var(--okbg); padding:.35rem .55rem; border-radius:3px; }
+
+  /* ---- Second Brain / Tabellen ---- */
+  .tbl { overflow-x:auto; border:1px solid var(--line); background:var(--card); }
+  table { width:100%; border-collapse:collapse; font-size:.83rem; }
+  th { text-align:left; font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); padding:.55rem .8rem; border-bottom:2px solid var(--ink); }
+  td { padding:.5rem .8rem; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  td.num { font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
+  .brain { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1rem; align-items:start; }
+  .brain h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.08em; margin:0 0 .5rem; display:flex; align-items:baseline; gap:.5rem; flex-wrap:wrap; }
+  .cstat { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-bottom:.6rem; }
+  .cstat div { background:var(--card); text-align:center; padding:.45rem .2rem .35rem; }
+  .cstat b { display:block; font-size:1.15rem; font-variant-numeric:tabular-nums; }
+  .cstat span { font-size:.6rem; text-transform:uppercase; letter-spacing:.05em; color:var(--soft); }
+
+  /* ---- Projektmappe (Kachel-Galerie) ---- */
+  .mappe { background:var(--card); border:1px solid var(--line); padding:1rem 1.1rem 1.2rem; margin-bottom:1.2rem; }
+  .mappe > header { display:flex; justify-content:space-between; align-items:baseline; gap:.8rem; flex-wrap:wrap; }
+  .mappe h3 { margin:0; font-size:1.05rem; }
+  .mappe.fertig { border-left:3px solid var(--ok); }
+  .kacheln { display:grid; grid-template-columns:repeat(auto-fill,minmax(205px,1fr)); gap:.6rem; margin-top:.85rem; }
+  .kachel { display:flex; flex-direction:column; gap:.35rem; background:var(--paper); border:1px solid var(--line);
+            border-top:3px solid var(--line); padding:.7rem .8rem .75rem; min-height:118px; text-decoration:none; color:inherit; }
+  a.kachel:hover { border-color:var(--accent); }
+  .kachel h4 { margin:0; font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--soft);
+               display:flex; align-items:center; gap:.4rem; }
+  .kachel .glyph { font-size:1.05rem; }
+  .kachel .inhalt { font-size:.83rem; }
+  .kachel .fuss { margin-top:auto; padding-top:.35rem; font-size:.72rem; color:var(--soft); }
+  .kachel.voll { grid-column:1/-1; border-top-color:var(--accent); background:var(--card); }
+  .kachel.voll h4 { color:var(--accent); font-size:.8rem; }
+  ul.msteine { list-style:none; margin:.25rem 0 0; padding:0;
+               display:grid; grid-template-columns:repeat(auto-fill,minmax(265px,1fr)); gap:.3rem .9rem; }
+  ul.msteine li { font-size:.86rem; display:flex; gap:.45rem; align-items:baseline; }
+  ul.msteine .mk { flex:none; font-weight:700; }
+  ul.msteine li.offen .mk { color:var(--warn); }
+  ul.msteine li.erledigt { color:var(--soft); }
+  ul.msteine li.erledigt .mk { color:var(--ok); }
+  ul.msteine li.erledigt .mt { text-decoration:line-through; }
+  ul.txt { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.25rem; }
+  ul.txt li { font-size:.8rem; }
+  ul.txt button { background:none; border:none; padding:0; font:inherit; font-size:.8rem; color:var(--ink);
+                  text-align:left; cursor:pointer; text-decoration:underline dotted; }
+  ul.txt button:hover { color:var(--accent); }
+
+  /* ---- Statistik (Tagesbalken, gestapelt nach Agent) ---- */
+  .chart { background:var(--card); border:1px solid var(--line); padding:1rem .9rem .7rem; overflow-x:auto; }
+  .saeulen { display:flex; align-items:flex-end; gap:2px; height:220px; min-width:620px; border-bottom:1px solid var(--ink); }
+  .tagsp { flex:1 1 0; min-width:4px; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }
+  .achse { display:flex; gap:2px; min-width:620px; margin-top:.35rem; }
+  .achse span { flex:1 1 0; min-width:4px; font-size:.6rem; color:var(--soft); text-align:center; white-space:nowrap; }
+  .legende { display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:.35rem .9rem; margin-top:1rem; }
+  .legende div { font-size:.78rem; display:flex; align-items:baseline; gap:.4rem; }
+  .legende .lz { margin-left:auto; color:var(--soft); font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* ---- Detail-Overlay ---- */
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:20;
+             display:flex; align-items:flex-start; justify-content:center; padding:2rem 1rem; overflow-y:auto; }
+  .overlay[hidden] { display:none; }
+  .ovbox { background:var(--card); border:1px solid var(--line); max-width:820px; width:100%; padding:1rem 1.3rem 1.6rem; }
+  .ovzu { float:right; background:var(--chip); border:1px solid var(--line); color:var(--ink); font:inherit;
+          font-size:.78rem; font-weight:700; padding:.45rem .8rem; min-height:44px; cursor:pointer; }
+  .ovzu:hover { border-color:var(--accent); color:var(--accent); }
+  .ovbox h3 { margin:.2rem 0 .3rem; font-size:1.1rem; max-width:62ch; }
+  .ovbox .volltext { white-space:pre-wrap; font-size:.88rem; line-height:1.65; margin-top:.9rem; max-width:78ch; }
+
+  footer.seite { margin-top:2.5rem; padding-top:.9rem; border-top:1px solid var(--line); font-size:.76rem; color:var(--soft); max-width:78ch; }
+  /* ---- Handy (Touch-Ziele, gestapelte Kacheln) ---- */
+  @media (max-width:560px) {
+    body { padding:1.1rem .8rem 3rem; }
+    nav.menue a { padding:.7rem .7rem .55rem; font-size:.74rem; }
+    .ampeln { grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); }
+    .kacheln, ul.msteine, .spalten, .board, .brain { grid-template-columns:1fr; }
+    .kachel { min-height:auto; }
+    .cstat { grid-template-columns:repeat(2,1fr); }
+    .mappe, .karte, .chart { padding-left:.8rem; padding-right:.8rem; }
+    .overlay { padding:0; }
+    .ovbox { min-height:100vh; }
+    button.antwort, ul.txt button, a.kachel { min-height:44px; }
+    .legende { grid-template-columns:1fr; }
+  }
+
+  #toast { position:fixed; left:50%; bottom:1.5rem; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:.82rem; padding:.6rem 1rem; border-radius:4px; opacity:0; pointer-events:none; transition:opacity .25s; max-width:90vw; text-align:center; z-index:9; }
+  #toast.zeigen { opacity:1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">krisensicher.ch · KI-Agenten-Agentur · LIVE</p>
+    <h1>swissROI — Kontrollzentrum</h1>
+    <p class="stand" id="stand">Lade Daten …</p>
+  </header>
+
+  <div class="fixkopf">
+    <nav class="menue" id="menue">
+      <a href="#uebersicht" data-tab="uebersicht">Übersicht</a>
+      <a href="#systemkarte" data-tab="systemkarte">Systemkarte</a>
+      <a href="#projekte" data-tab="projekte">Projekte</a>
+      <a href="#agenten" data-tab="agenten">Agenten<span class="badge" id="agentenBadge" hidden></span></a>
+      <a href="#entscheidungen" data-tab="entscheidungen">Entscheidungen</a>
+      <a href="#statistik" data-tab="statistik">Statistik</a>
+      <a href="#wissen" data-tab="wissen">Wissen</a>
+    </nav>
+    <div id="ampeln" class="ampeln"></div>
+  </div>
+
+  <div id="fehler"></div>
+
+  <section class="tab" id="tab-uebersicht"></section>
+
+  <section class="tab" id="tab-systemkarte">
+  <h2>So arbeitet deine Agentur</h2>
+  <p class="lead">Die 7 Bausteine des Systems und wie sie zusammenhängen. Diese Karte ist statisch — was sich täglich bewegt, steht in den Abschnitten darunter.</p>
+  <div class="karte">
+    <div class="fluss">
+      <div class="baustein">
+        <h4><span class="bnr">1</span>Chat &amp; Manager-Agent</h4>
+        <p>Du gibst Ziele im Claude-Chat vor; der Manager zerlegt sie in Aufgaben und delegiert an 6 Spezial-Agenten (SEO, Content, Strategie, Daten, Web, Research).</p>
+      </div>
+      <div class="arr">→</div>
+      <div class="baustein">
+        <h4><span class="bnr">2</span>GitHub-Repos</h4>
+        <p>Das swissROI-Repo ist das «Betriebssystem» (alle Regeln, jede Änderung ein Commit) — dazu ein eigenes Code-Repo pro Website. Der Web-Agent arbeitet auf Branches; live geht nichts ohne deine Freigabe.</p>
+        <p class="blinks"><a class="out" href="https://github.com/Krisensicher/swissROI" target="_blank" rel="noopener">↗ swissROI-Repo</a></p>
+      </div>
+      <div class="arr">→</div>
+      <div class="baustein">
+        <h4><span class="bnr">3</span>Vercel → Websites</h4>
+        <p>Jeder Push baut automatisch eine Vorschau; der Produktions-Branch ist die Live-Website.</p>
+        <p class="blinks"><a class="out" href="https://vercel.com/dashboard" target="_blank" rel="noopener">↗ Vercel-Dashboard</a></p>
+        <!-- Website-Status: HARDCODED — wird vom Manager gepflegt (liegt nicht strukturiert in der Datenbank). -->
+        <div class="sites">
+          <span class="site" data-status="pr-bereit">🚰 sanitaer-notdienst.ch
+            <a class="out" href="https://github.com/Krisensicher/sanitaer-notdienst.ch" target="_blank" rel="noopener">↗ Repo</a>
+            <a class="out" href="https://github.com/Krisensicher/sanitaer-notdienst.ch/pull/1" target="_blank" rel="noopener">↗ PR</a>
+            <a class="out" href="https://claude.ai/code/artifact/83f39980-de5c-445a-8681-a0ced23cf20a" target="_blank" rel="noopener">↗ Vorschau</a>
+            <span class="st">PR bereit</span></span>
+          <span class="site" data-status="wartet">💧 Wasserschaden-Hub
+            <a class="out" href="https://claude.ai/code/artifact/d24b1850-8cf1-4905-a866-d1494a187633" target="_blank" rel="noopener">↗ Vorschau</a>
+            <span class="st">wartet auf Repo/Domain</span></span>
+          <span class="site" data-status="wartet">🧱 Kellerabdichtungs-Hub
+            <a class="out" href="https://claude.ai/code/artifact/47f5dc3f-501d-420d-a95b-f4e01a723951" target="_blank" rel="noopener">↗ Vorschau</a>
+            <span class="st">wartet auf Repo/Domain</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="stuetzen">
+      <div class="baustein">
+        <h4><span class="bnr">4</span>Supabase-Gedächtnis</h4>
+        <p>Das Second Brain: Ziele, Aufgaben, Einsätze, Keywords, Content, Entscheidungen — alles, was die Agentur weiss.</p>
+        <p class="blinks"><a class="out" href="https://supabase.com/dashboard/project/ahrammvkqgpmagyfggmi" target="_blank" rel="noopener">↗ Supabase-Projekt</a></p>
+        <span class="rel">↔ Manager &amp; Agenten lesen und schreiben hier</span>
+      </div>
+      <div class="baustein">
+        <h4><span class="bnr">5</span>Dieses Dashboard</h4>
+        <p>Deine lokale Sicht auf das Gedächtnis — immer live, kostet null Tokens pro Ansicht.</p>
+        <span class="rel">← liest Supabase alle 5 Minuten</span>
+      </div>
+      <div class="baustein">
+        <h4><span class="bnr">6</span>Connectoren</h4>
+        <p>Die Werkzeuge der Agenten: Semrush (SEO-Daten), Supabase (Datenbank), GitHub (Code) — ohne Passwörter im Repo. Vercel und Domain-Registrar bedienst nur du.</p>
+        <span class="rel">→ von den Agenten genutzt</span>
+      </div>
+      <div class="baustein">
+        <h4><span class="bnr">7</span>04:00-Takt</h4>
+        <p>Weckt den Manager jeden Morgen: wichtigste offene Aufgaben abarbeiten, Kurz-Report schreiben — montags mit Kritiker-Review.</p>
+        <span class="rel">→ startet den Manager automatisch</span>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <section class="tab" id="tab-projekte"></section>
+  <section class="tab" id="tab-agenten"></section>
+  <section class="tab" id="tab-entscheidungen"></section>
+  <section class="tab" id="tab-statistik"></section>
+  <section class="tab" id="tab-wissen"></section>
+
+  <footer class="seite">Diese Seite holt die Daten bei jedem Aufruf live aus der Agentur-Datenbank (Supabase Edge Function) und verbraucht keine Claude-Tokens. Token-Zahlen sind Schätzungen des Managers auf Basis der letzten 100 Einsätze. Diese Datei und ihren Schlüssel geheim halten.</footer>
+</div>
+<div class="overlay" id="overlay" hidden><div class="ovbox">
+  <button class="ovzu" type="button" id="ovzu">✕ Schliessen</button>
+  <div id="ovinhalt"></div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+// Persönlicher Zugangsschlüssel — entspricht settings.dashboard_key.
+// Im Repo steht nur der Platzhalter; die persönliche Kopie trägt den echten Schlüssel.
+// location.hash dient primär der Tab-Navigation; nur ein Hash, der KEIN Tab-Name ist,
+// wird (wie bisher) als Schlüssel interpretiert.
+const TAB_NAMEN = ["uebersicht", "systemkarte", "projekte", "agenten", "entscheidungen", "statistik", "wissen"];
+const startHash = decodeURIComponent(location.hash.slice(1));
+const KEY = (startHash && !TAB_NAMEN.includes(startHash)) ? startHash : "SCHLUESSEL_HIER_EINSETZEN";
+const DATEN_URL = "https://ahrammvkqgpmagyfggmi.supabase.co/functions/v1/dashboard?key=" + encodeURIComponent(KEY);
+
+const AGENT_COLORS = {
+  manager: "#c8281e",
+  "seo-agent": "#1f5f96",
+  "content-agent": "#b0691c",
+  "strategie-agent": "#6b4fa1",
+  "daten-agent": "#2f7d4f",
+  "web-agent": "#0e7d8a",
+  "research-agent": "#8a5a83",
+  "review-agent": "#5c6b3f",
+};
+
+// [Schlüssel, Anzeigename, Kurzrolle]
+const AGENTS = [
+  ["manager", "Manager", "Koordiniert alles, delegiert an die Spezialisten, eskaliert Wichtiges an dich"],
+  ["seo-agent", "SEO-Agent", "Keywords, Konkurrenz, Backlinks und Site-Audits (Semrush)"],
+  ["content-agent", "Content-Agent", "Blog-Artikel, Social Media und Texte aller Art"],
+  ["strategie-agent", "Strategie-Agent", "Marktanalyse, Planung und Priorisierung"],
+  ["daten-agent", "Daten-Agent", "Datenbank, Auswertungen und Migrationen"],
+  ["web-agent", "Web-Agent", "Baut und pflegt die Websites (GitHub + Vercel), technisches SEO"],
+  ["research-agent", "Research-Agent", "Allgemeine Recherche: Markt, Anbieter, Preise, Fakten"],
+];
+
+// Projekt-Steckbriefe: feste Links und Erkennungswörter je Website-Projekt.
+// Bewusst hier als Konstante statt in der Datenbank — die Werte ändern sich selten,
+// eine eigene Tabelle dafür wäre reiner Wartungsaufwand.
+const GH = "https://github.com/Krisensicher/swissROI/blob/claude/setup-abschliessen-zstipr/docs/";
+const PROJEKTE = {
+  "03884af4-67a0-4de8-8d03-4e341e87c2ec": {
+    emoji: "🚰", kurz: "sanitaer-notdienst.ch",
+    vorschau: "https://claude.ai/code/artifact/83f39980-de5c-445a-8681-a0ced23cf20a",
+    keywordMap: GH + "keyword-map-sanitaer-notdienst.md",
+    repo: "https://github.com/Krisensicher/sanitaer-notdienst.ch",
+    pr: "https://github.com/Krisensicher/sanitaer-notdienst.ch/pull/1",
+    // Erkennungswörter für Texte/Einsätze dieses Projekts. Bewusst breit: die
+    // Sanitär-Texte heissen teils nur «Regionalseite Zürich» oder «Boiler entkalken».
+    stichworte: ["sanitär", "sanitaer", "rohrbruch", "rohrreinigung", "verstopf", "abfluss",
+      "boiler", "kanal", "notdienst", "regionalseite zürich", "regionalseite bern",
+      "regionalseite basel", "regionalseite aargau", "regionalseite luzern"],
+  },
+  "52bfe688-1667-4184-b14a-421c409d4333": {
+    emoji: "💧", kurz: "Wasserschaden-Hub",
+    vorschau: "https://claude.ai/code/artifact/d24b1850-8cf1-4905-a866-d1494a187633",
+    keywordMap: GH + "keyword-map-wasserschaden.md",
+    stichworte: ["wasserschaden", "trocknung", "leckortung"],
+  },
+  "6fbf972b-748a-4b16-9809-36c016170998": {
+    emoji: "🧱", kurz: "Kellerabdichtung-Hub",
+    vorschau: "https://claude.ai/code/artifact/47f5dc3f-501d-420d-a95b-f4e01a723951",
+    keywordMap: GH + "keyword-map-kellerabdichtung.md",
+    stichworte: ["keller", "abdicht", "feuchte wand"],
+  },
+};
+
+// Kachel-Galerie der Projektmappe. Reihenfolge = Anzeige-Reihenfolge;
+// «Meilensteine» steht bewusst zuoberst und über die volle Breite.
+const KACHELN = [
+  { typ: "meilensteine", label: "Meilensteine", glyph: "🏁", voll: true },
+  { typ: "vorschau", label: "Website-Vorschau", glyph: "🖥️" },
+  { typ: "keywords", label: "Keyword-Map", glyph: "🔑" },
+  { typ: "audit", label: "Audit & Kritik", glyph: "🔍" },
+  { typ: "texte", label: "Texte", glyph: "📝" },
+  { typ: "statistik", label: "Projekt-Statistik", glyph: "📊" },
+];
+
+// Absprung in den Supabase-Studio-Tabelleneditor. Tiefer als /editor lässt sich nicht
+// stabil verlinken (Studio nutzt interne Tabellen-IDs) — der Editor listet alle Tabellen links.
+const SB_EDITOR = "https://supabase.com/dashboard/project/ahrammvkqgpmagyfggmi/editor";
+const sbLink = (tabelle) =>
+  `<a class="out" href="${SB_EDITOR}" target="_blank" rel="noopener" title="Tabelle «${tabelle}» im Supabase-Studio">↗ In Supabase öffnen</a>`;
+
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const kurz = (s, n = 110) => { s = String(s ?? ""); return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s; };
+const fmtDate = (s) =>
+  s ? new Date(s).toLocaleString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
+const fmtTag = (s) =>
+  s ? new Date(s).toLocaleDateString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", year: "numeric" }) : "—";
+const fmtTokens = (n) =>
+  n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)} Mio.` : n >= 1000 ? `${Math.round(n / 1000)}k` : String(n);
+const zhTag = (s) => new Date(s).toLocaleDateString("de-CH", { timeZone: "Europe/Zurich" });
+
+/* ---------- Ampel-Kacheln ---------- */
+function renderAmpeln(d, g, t, r) {
+  const heute = zhTag(new Date());
+  const woche = Date.now() - 7 * 864e5;
+  const running = r.filter((x) => x.status === "running").length;
+  const heuteErledigt = r.filter((x) => x.status === "done" && zhTag(x.finished_at ?? x.started_at) === heute).length;
+  const fehler7 = r.filter((x) => x.status === "failed" && new Date(x.started_at).getTime() >= woche).length;
+  const tok7 = r.filter((x) => new Date(x.started_at).getTime() >= woche)
+    .reduce((s, x) => s + (x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0), 0);
+  const aktiveZiele = g.filter((x) => x.status === "aktiv").length;
+
+  document.getElementById("ampeln").innerHTML = `
+    <div class="ampel ${d.length ? "rot" : "gruen"}" data-goto="entscheidungen" title="Zum Entscheidungen-Tab"><b>${d.length}</b><span>Wartet auf dich</span>
+      <span class="hint">${d.length ? "Offene Entscheidungen — Klick öffnet den Tab" : "Nichts offen — alles läuft"}</span></div>
+    <div class="ampel ${running ? "gelb" : ""}"><b>${running}</b><span>Läuft gerade</span>
+      <span class="hint">${running ? "Agenten sind im Einsatz" : "Kein Agent aktiv"}</span></div>
+    <div class="ampel ${heuteErledigt ? "gruen" : ""}"><b>${heuteErledigt}</b><span>Heute erledigt</span>
+      <span class="hint">Abgeschlossene Einsätze heute</span></div>
+    <div class="ampel ${fehler7 ? "rot" : "gruen"}"><b>${fehler7}</b><span>Fehler (7 Tage)</span>
+      <span class="hint">${fehler7 ? "Manager im Chat fragen" : "Keine Fehler"}</span></div>
+    <div class="ampel"><b>≈ ${fmtTokens(tok7)}</b><span>Tokens (7 Tage)</span>
+      <span class="hint">Schätzung des Managers</span></div>
+    <div class="ampel"><b>${aktiveZiele}</b><span>Aktive Projekte</span>
+      <span class="hint">Ziele in Arbeit</span></div>`;
+}
+
+/* ---------- Projektmappe: Kachel-Galerie je Projekt ---------- */
+// Trifft ein Text eines der Erkennungswörter des Projekts?
+const passt = (text, stichworte) => {
+  const s = String(text ?? "").toLowerCase();
+  return (stichworte ?? []).some((w) => s.includes(w));
+};
+
+// Eine Bau-Funktion je Kachel-Typ. ctx = { goal, p, msteine, aufgaben, prj_runs, texte }
+const KACHEL_BAU = {
+  meilensteine: ({ msteine }) => {
+    if (!msteine.length) {
+      return `<p class="inhalt">Noch keine Meilensteine gesetzt — der Manager legt sie beim nächsten Takt an.</p>`;
+    }
+    const erreicht = msteine.filter((x) => x.status === "erledigt").length;
+    const li = msteine.map((x) => {
+      const offen = x.status !== "erledigt";
+      return `<li class="${offen ? "offen" : "erledigt"}">
+        <span class="mk">${offen ? (x.status === "blockiert" ? "⛔" : "○") : "✓"}</span>
+        <span><span class="mt">${esc(x.title)}</span>${x.details ? `<div class="sub">${esc(kurz(x.details, 90))}</div>` : ""}</span></li>`;
+    }).join("");
+    return `<ul class="msteine">${li}</ul>
+      <p class="mfort">${erreicht} von ${msteine.length} erreicht — offene Punkte brauchen meist dich (Domain, Repo, Freigabe).</p>`;
+  },
+
+  vorschau: ({ p }) => p?.vorschau
+    ? `<p class="inhalt">Klickbare Vorschau der gebauten Website — alle Seiten in einer Datei.</p>
+       <span class="fuss">↗ öffnet in neuem Tab</span>`
+    : `<p class="inhalt">Noch keine Vorschau vorhanden.</p>`,
+
+  keywords: ({ p }) => p?.keywordMap
+    ? `<p class="inhalt">Welche Seite auf welche Keywords zielt — plus Backlink-Anleitung und KI-Test-Prompts.</p>
+       <span class="fuss">↗ Dokument auf GitHub</span>`
+    : `<p class="inhalt">Noch keine Keyword-Map.</p>`,
+
+  audit: ({ prj_runs }) => {
+    const pruef = prj_runs.find((x) => /kritik|review|audit|prüf|pruef|bewert/i.test(`${x.task} ${x.result_summary ?? ""}`));
+    return pruef
+      ? `<p class="inhalt">${esc(kurz(pruef.result_summary || pruef.task, 150))}</p>
+         <span class="fuss">${esc(pruef.agent)} · ${fmtDate(pruef.started_at)}</span>`
+      : `<p class="inhalt">Noch kein Audit. Der Montags-Kritiker prüft die Projekte automatisch.</p>`;
+  },
+
+  texte: ({ texte }) => texte.length
+    ? `<ul class="txt">${texte.slice(0, 6).map((x) => `<li>
+         <button type="button" data-detail="${esc(x.id)}">${esc(kurz(x.title, 58))}</button>
+         <span class="pill">${esc(x.status)}</span></li>`).join("")}</ul>
+       <span class="fuss">${texte.length} Text${texte.length === 1 ? "" : "e"} · Klick zeigt den Volltext</span>`
+    : `<p class="inhalt">Noch keine Texte erfasst.</p>`,
+
+  statistik: ({ prj_runs, texte, msteine }) => {
+    const tok = prj_runs.reduce((s, x) => s + (x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0), 0);
+    const erreicht = msteine.filter((x) => x.status === "erledigt").length;
+    return `<p class="inhalt">${prj_runs.length} Einsätze · ≈ ${fmtTokens(tok)} Tokens<br>
+      ${texte.length} Texte · ${erreicht}/${msteine.length} Meilensteine</p>
+      <span class="fuss">Token-Zahlen sind Schätzwerte</span>`;
+  },
+};
+
+function renderProjekte(g, t, r, c) {
+  const mappe = (goal, fertig) => {
+    const p = PROJEKTE[goal.id];
+    const gt = t.filter((x) => x.goal_id === goal.id);
+    const msteine = gt.filter((x) => x.agent === "meilenstein");
+    const aufgaben = gt.filter((x) => x.agent !== "meilenstein");
+    const stichworte = p?.stichworte ?? [];
+    const prj_runs = r.filter((x) => passt(`${x.task} ${x.result_summary ?? ""}`, stichworte));
+    const texte = c.filter((x) => passt(x.title, stichworte));
+
+    const done = aufgaben.filter((x) => x.status === "erledigt").length;
+    const pct = aufgaben.length ? Math.round((done / aufgaben.length) * 100) : 0;
+    const ctx = { goal, p, msteine, aufgaben, prj_runs, texte };
+
+    const ziel = { vorschau: p?.vorschau, keywords: p?.keywordMap };
+    const kacheln = KACHELN.map((k) => {
+      const inner = `<h4><span class="glyph">${k.glyph}</span>${k.label}</h4>${KACHEL_BAU[k.typ](ctx)}`;
+      const cls = `kachel${k.voll ? " voll" : ""}`;
+      return ziel[k.typ]
+        ? `<a class="${cls}" href="${ziel[k.typ]}" target="_blank" rel="noopener">${inner}</a>`
+        : `<div class="${cls}">${inner}</div>`;
+    }).join("");
+
+    const links = [
+      p?.repo ? `<a class="out" href="${p.repo}" target="_blank" rel="noopener">↗ Repo</a>` : "",
+      p?.pr ? `<a class="out" href="${p.pr}" target="_blank" rel="noopener">↗ Pull Request</a>` : "",
+    ].filter(Boolean).join("");
+
+    const aufgabenListe = aufgaben.map((x) => `<li class="task ${esc(x.status)}">
+        <span class="dot" style="background:${AGENT_COLORS[x.agent] ?? "#888"}"></span>
+        <span class="tt">${esc(x.title)}</span><em>· ${esc(x.agent)} · ${esc(x.status)}</em></li>`).join("");
+
+    return `<article class="mappe${fertig ? " fertig" : ""}">
+      <header><h3><span class="pnum">P${goal.priority}</span>${p ? p.emoji + " " : ""}${esc(goal.title)}</h3>
+        <span class="pct">${fertig ? `erreicht am ${fmtTag(goal.updated_at)}` : `${done}/${aufgaben.length} Aufgaben (${pct}%)`}</span></header>
+      ${links ? `<p class="blinks">${links}</p>` : ""}
+      <div class="bar"><div style="width:${fertig ? 100 : pct}%"></div></div>
+      ${goal.description ? `<p class="desc">${esc(goal.description)}</p>` : ""}
+      <div class="kacheln">${kacheln}</div>
+      ${aufgaben.length ? `<details class="klapp"><summary>Alle Aufgaben (${aufgaben.length})</summary>
+        <ul class="tasks">${aufgabenListe}</ul></details>` : ""}
+    </article>`;
+  };
+
+  const aktive = g.filter((x) => x.status === "aktiv");
+  const erreichte = g.filter((x) => x.status === "erreicht");
+  const aktivHtml = aktive.length
+    ? aktive.map((x) => mappe(x, false)).join("")
+    : `<p class="empty">Keine aktiven Projekte. Gib dem Manager ein Ziel — z.&nbsp;B. «Neues Ziel: …» — und der tägliche Takt arbeitet automatisch daran.</p>`;
+  const fertigHtml = erreichte.length
+    ? `<details class="klapp"><summary>Abgeschlossene Projekte (${erreichte.length})</summary>
+       ${erreichte.map((x) => mappe(x, true)).join("")}</details>`
+    : "";
+  return `<h2>Projekte${sbLink("goals / tasks")}</h2>
+    <p class="lead">Eine Mappe pro Projekt. Ganz oben stehen die Meilensteine — der wichtigste Blick: was ist erreicht, was fehlt noch.
+    Die Kacheln darunter führen direkt zur Vorschau, zur Keyword-Map, zum letzten Audit und zu den Texten.</p>${aktivHtml}${fertigHtml}`;
+}
+
+/* ---------- Übersicht (Tages-Blick) ---------- */
+function renderUebersicht(r, d) {
+  const letzte = r.slice(0, 5);
+  const runsHtml = letzte.length
+    ? `<ul>${letzte.map((x) => `<li><span class="pill ${esc(x.status)}">${esc(x.status)}</span>
+        <strong>${esc(x.agent)}</strong> — ${esc(kurz(x.result_summary || x.task, 110))}
+        <div class="sub">${fmtDate(x.started_at)}</div></li>`).join("")}</ul>`
+    : `<span class="nix">Noch keine Einsätze erfasst.</span>`;
+  const decHtml = d.length
+    ? `<ul class="dec">${d.map((x) => `<li><strong>${esc(x.topic)}</strong>
+        ${x.agent ? `<span class="sub" style="display:inline"> · ${esc(x.agent)}</span>` : ""}
+        <div class="sub">${esc(kurz(x.description, 120))}</div></li>`).join("")}</ul>
+       <p class="sub" style="margin-top:.5rem"><a class="out" href="#entscheidungen">→ Zum Entscheidungen-Tab</a></p>`
+    : `<p class="empty">Keine offenen Entscheidungen — nichts wartet auf dich.</p>`;
+  return `<h2>Tages-Blick</h2>
+    <p class="lead">Das Wichtigste auf einen Blick: die neusten Einsätze und was auf dich wartet. Details in den Tabs oben.</p>
+    <div class="brain">
+      <div><h3>Neuste 5 Einsätze</h3><div class="einsaetze" style="border-top:none;padding-top:0">${runsHtml}</div></div>
+      <div><h3>Offene Entscheidungen (${d.length})</h3>${decHtml}</div>
+    </div>`;
+}
+
+/* ---------- Agenten-Board ---------- */
+function renderBoard(t, r, d) {
+  const cards = AGENTS.map(([key, name, rolle]) => {
+    const farbe = AGENT_COLORS[key] ?? "#888";
+    const at = t.filter((x) => x.agent === key);
+    const inArbeit = at.filter((x) => x.status === "in_arbeit");
+    const offen = at.filter((x) => x.status === "offen" || x.status === "blockiert");
+    const erledigt = at.filter((x) => x.status === "erledigt")
+      .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at)).slice(0, 5);
+    const ar = r.filter((x) => x.agent === key);
+    const letzte = ar.slice(0, 3);
+    const tok = ar.reduce((s, x) => s + (x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0), 0);
+
+    const col = (items, cls = "") => items.length
+      ? `<ul>${items.map((x) => `<li>${x.status === "blockiert" ? "⛔ " : ""}${esc(kurz(x.title, 70))}</li>`).join("")}</ul>`
+      : `<span class="nix">—</span>`;
+    const einsaetze = letzte.length
+      ? `<ul>${letzte.map((x) => `<li><span class="pill ${esc(x.status)}">${esc(x.status)}</span> ${esc(kurz(x.result_summary || x.task, 110))}<div class="sub">${fmtDate(x.started_at)}</div></li>`).join("")}</ul>`
+      : `<span class="nix">Noch keine Einsätze.</span>`;
+
+    const fragen = d.filter((x) => x.agent === key);
+    const frageHtml = fragen.map((f) => `<div class="frageblock">
+        <h6>❓ Hat eine Frage an dich</h6>
+        <strong>${esc(f.topic)}</strong>
+        <div class="sub">${esc(kurz(f.description, 150))}</div>
+        ${f.options ? `<div class="sub">Optionen: ${esc(f.options)}</div>` : ""}
+        <button class="antwort" type="button" data-topic="${esc(f.topic)}">📋 Antwort kopieren</button>
+      </div>`).join("");
+
+    return `<article class="agent${fragen.length ? " hatfrage" : ""}" style="border-top-color:${farbe}">
+      <header><span class="dot" style="background:${farbe}"></span><h3>${esc(name)}</h3></header>
+      <p class="rolle">${esc(rolle)}</p>
+      ${frageHtml}
+      <div class="spalten">
+        <div class="spalte"><h5>In Arbeit (${inArbeit.length})</h5>${col(inArbeit)}</div>
+        <div class="spalte"><h5>Offen (${offen.length})</h5>${col(offen)}</div>
+        <div class="spalte done"><h5>Erledigt (letzte 5)</h5>${col(erledigt)}</div>
+      </div>
+      <div class="einsaetze"><h5>Letzte Einsätze</h5>${einsaetze}</div>
+      <footer><span>${ar.length} Einsätze erfasst</span><span>≈ ${fmtTokens(tok)} Tokens</span></footer>
+    </article>`;
+  }).join("");
+  return `<h2>Agenten-Board${sbLink("agent_runs")}</h2><p class="lead">Eine Karte pro Agent: woran er arbeitet, was ansteht, was er zuletzt geliefert hat. Hat ein Agent eine offene Frage an dich, erscheint sie direkt auf seiner Karte.</p><div class="board">${cards}</div>`;
+}
+
+/* ---------- Entscheidungen ---------- */
+function renderEntscheidungen(offen, hist) {
+  const offenHtml = offen.length
+    ? `<ul class="dec">${offen.map((x) => `<li><strong>${esc(x.topic)}</strong><br>${esc(x.description)}
+        ${x.options ? `<div class="sub">Optionen: ${esc(x.options)}</div>` : ""}
+        <div class="sub">Offen seit ${fmtTag(x.created_at)} — Antwort einfach im Manager-Chat geben.</div></li>`).join("")}</ul>`
+    : `<p class="empty">Keine offenen Entscheidungen — nichts wartet auf dich.</p>`;
+  const histHtml = hist.length
+    ? `<details class="klapp"><summary>Entschiedene Fragen (${hist.length}, Historie)</summary>
+       <ul class="dec hist">${hist.map((x) => `<li><strong>${esc(x.topic)}</strong>
+         <div class="sub">${esc(kurz(x.description, 160))}</div>
+         <div class="antwort"><strong>Deine Entscheidung${x.decided_at ? ` (${fmtTag(x.decided_at)})` : ""}:</strong> ${esc(x.decision ?? "verworfen")}</div></li>`).join("")}</ul></details>`
+    : "";
+  return `<h2>Entscheidungen${sbLink("decisions")}</h2><p class="lead">Hier landet alles, was Geld kostet, publiziert wird oder die Strategie ändert — nichts davon passiert ohne dich.</p>${offenHtml}${histHtml}`;
+}
+
+/* ---------- Statistik: Token-Tagesbalken je Agent ---------- */
+function renderStatistik(stats) {
+  const tagKey = (d) => d.toLocaleDateString("en-CA", { timeZone: "Europe/Zurich" });
+  const anzahl = stats?.tage_anzahl ?? 90;
+  const buckets = new Map((stats?.tage ?? []).map((x) => [x.tag, x.agenten ?? {}]));
+  const summen = stats?.summen ?? {};
+
+  // Volle Tagesreihe aufbauen, damit Lücken als Lücken sichtbar bleiben.
+  const jetzt = Date.now();
+  const reihe = [];
+  for (let i = anzahl - 1; i >= 0; i--) {
+    const d = new Date(jetzt - i * 864e5);
+    const key = tagKey(d);
+    reihe.push({ key, datum: d, agenten: buckets.get(key) ?? {} });
+  }
+  const tagSumme = (a) => Object.values(a).reduce((s, v) => s + v, 0);
+  const max = Math.max(1, ...reihe.map((x) => tagSumme(x.agenten)));
+
+  const saeulen = reihe.map((tag) => {
+    const posten = Object.entries(tag.agenten).sort((a, b) => b[1] - a[1]);
+    const segs = posten.map(([agent, tok]) =>
+      `<div style="height:${(tok / max) * 100}%;background:${AGENT_COLORS[agent] ?? "#8a8a8a"}"></div>`).join("");
+    const titel = posten.length
+      ? `${fmtTag(tag.datum)}: ${posten.map(([a, v]) => `${a} ≈ ${fmtTokens(v)}`).join(", ")}`
+      : `${fmtTag(tag.datum)}: keine Einsätze`;
+    return `<div class="tagsp" title="${esc(titel)}">${segs}</div>`;
+  }).join("");
+
+  const achse = reihe.map((tag, i) => {
+    const zeig = i === reihe.length - 1 || (reihe.length - 1 - i) % 7 === 0;
+    return `<span>${zeig ? tag.datum.toLocaleDateString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit" }) : ""}</span>`;
+  }).join("");
+
+  const rang = Object.entries(summen).sort((a, b) => b[1].tokens - a[1].tokens);
+  const gesamt = rang.reduce((s, [, v]) => s + v.tokens, 0);
+  const laeufe = rang.reduce((s, [, v]) => s + v.laeufe, 0);
+  const legende = rang.length
+    ? `<div class="legende">${rang.map(([agent, v]) => `<div>
+         <span class="dot" style="background:${AGENT_COLORS[agent] ?? "#8a8a8a"}"></span>
+         <span>${esc(agent)}</span>
+         <span class="lz">≈ ${fmtTokens(v.tokens)} · ${v.laeufe} Einsätze</span></div>`).join("")}</div>`
+    : "";
+
+  const leer = gesamt === 0;
+  return `<h2>Token-Statistik${sbLink("agent_runs")}</h2>
+    <p class="lead">Verbrauch pro Tag, gestapelt nach Agent — für die langfristige Auswertung über ${anzahl} Tage.
+    Alle Zahlen sind <strong>Schätzwerte des Managers</strong>, keine Abrechnung: exakte Token-Zahlen sind aus einer Claude-Session nicht auslesbar.</p>
+    <div class="ampeln" style="margin-bottom:1rem">
+      <div class="ampel"><b>≈ ${fmtTokens(gesamt)}</b><span>Tokens (${anzahl} Tage)</span><span class="hint">Summe aller Agenten</span></div>
+      <div class="ampel"><b>${laeufe}</b><span>Einsätze</span><span class="hint">Protokollierte Agent-Läufe</span></div>
+      <div class="ampel"><b>≈ ${fmtTokens(Math.round(gesamt / anzahl))}</b><span>Ø pro Tag</span><span class="hint">Auch Tage ohne Einsatz gezählt</span></div>
+      <div class="ampel"><b>≈ ${fmtTokens(max)}</b><span>Spitzentag</span><span class="hint">Höchster Tagesverbrauch</span></div>
+    </div>
+    ${leer
+      ? `<p class="empty">Noch keine Einsätze im Zeitraum — sobald Agenten arbeiten, wachsen hier die Tagesbalken.</p>`
+      : `<div class="chart"><div class="saeulen">${saeulen}</div><div class="achse">${achse}</div>${legende}</div>`}`;
+}
+
+/* ---------- Second Brain ---------- */
+function renderBrain(k, c, h) {
+  const topK = [...k].sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0)).slice(0, 10);
+  const kwRows = topK.map((x) => `<tr><td>${esc(x.keyword)}</td><td class="num">${x.volume ?? "—"}</td><td class="num">${x.difficulty ?? "—"}</td></tr>`).join("");
+
+  const stati = ["entwurf", "review", "freigegeben", "publiziert"];
+  const cCounts = stati.map((s) => c.filter((x) => x.status === s).length);
+  const cRows = c.map((x) => `<tr><td>${esc(kurz(x.title, 60))}</td><td>${esc(x.type)}</td><td><span class="pill">${esc(x.status)}</span></td></tr>`).join("");
+
+  const hbRows = h.map((x) => `<tr><td>${fmtTag(x.report_date)}${x.content ? `<div class="sub">${esc(kurz(x.content, 130))}</div>` : ""}</td>
+    <td class="num">${x.runs_total}</td><td class="num">${x.runs_failed}</td>
+    <td class="num">≈ ${fmtTokens((x.input_tokens_est ?? 0) + (x.output_tokens_est ?? 0))}</td></tr>`).join("");
+
+  return `<h2>Second Brain — Wissen</h2>
+  <p class="lead">Was die Agentur bereits gesammelt hat: Keyword-Daten, die Content-Pipeline und die täglichen Takt-Reports.</p>
+  <div class="brain">
+    <div><h3>Top-Keywords <span class="sub" style="display:inline">(${k.length} zuletzt erfasste)</span>${sbLink("seo_keywords")}</h3>
+      <div class="tbl"><table><thead><tr><th>Keyword</th><th style="text-align:right">Volumen</th><th style="text-align:right">Difficulty</th></tr></thead>
+      <tbody>${kwRows || `<tr><td colspan="3"><em>Noch keine Keywords — beauftrage den SEO-Agent.</em></td></tr>`}</tbody></table></div></div>
+    <div><h3>Content-Pipeline <span class="sub" style="display:inline">(neueste 10)</span>${sbLink("content_items")}</h3>
+      <div class="cstat">${stati.map((s, i) => `<div><b>${cCounts[i]}</b><span>${s}</span></div>`).join("")}</div>
+      <div class="tbl"><table><thead><tr><th>Titel</th><th>Typ</th><th>Status</th></tr></thead>
+      <tbody>${cRows || `<tr><td colspan="3"><em>Noch keine Inhalte — beauftrage den Content-Agent.</em></td></tr>`}</tbody></table></div></div>
+    <div><h3>Arbeits-Takt (letzte 7 Tage)${sbLink("heartbeat_reports")}</h3>
+      <div class="tbl"><table><thead><tr><th>Report</th><th style="text-align:right">Läufe</th><th style="text-align:right">Fehler</th><th style="text-align:right">Tokens</th></tr></thead>
+      <tbody>${hbRows || `<tr><td colspan="4"><em>Noch kein Takt-Report.</em></td></tr>`}</tbody></table></div></div>
+  </div>`;
+}
+
+/* ---------- Zusammenbau ---------- */
+function render(data) {
+  const g = data.goals ?? [], t = data.tasks ?? [], r = data.runs ?? [];
+  const d = data.decisions ?? [], dh = data.decisions_entschieden ?? [];
+  const c = data.content ?? [], k = data.keywords ?? [], h = data.heartbeats ?? [];
+
+  document.getElementById("stand").textContent =
+    `Live aus der Datenbank · Stand ${new Date(data.stand).toLocaleString("de-CH", { timeZone: "Europe/Zurich" })} · aktualisiert sich alle 5 Min. automatisch, F5 für sofort`;
+
+  renderAmpeln(d, g, t, r);
+  document.getElementById("tab-uebersicht").innerHTML = renderUebersicht(r, d);
+  document.getElementById("tab-projekte").innerHTML = renderProjekte(g, t, r, c);
+  document.getElementById("tab-agenten").innerHTML = renderBoard(t, r, d);
+  document.getElementById("tab-entscheidungen").innerHTML = renderEntscheidungen(d, dh);
+  document.getElementById("tab-statistik").innerHTML = renderStatistik(data.stats);
+  document.getElementById("tab-wissen").innerHTML = renderBrain(k, c, h);
+
+  // Zähler-Badge am Agenten-Menüpunkt: offene Fragen, die einem Agent zugeordnet sind
+  const agentKeys = AGENTS.map(([k2]) => k2);
+  const fragenAnAgents = d.filter((x) => agentKeys.includes(x.agent)).length;
+  const badge = document.getElementById("agentenBadge");
+  badge.hidden = !fragenAnAgents;
+  badge.textContent = fragenAnAgents || "";
+}
+
+/* ---------- Tab-Navigation ---------- */
+function zeigeTab(name) {
+  if (!TAB_NAMEN.includes(name)) name = "uebersicht";
+  TAB_NAMEN.forEach((t2) => {
+    document.getElementById("tab-" + t2).classList.toggle("aktiv", t2 === name);
+  });
+  document.querySelectorAll("#menue a").forEach((a) => {
+    a.classList.toggle("aktiv", a.dataset.tab === name);
+  });
+}
+window.addEventListener("hashchange", () => {
+  const h2 = decodeURIComponent(location.hash.slice(1));
+  if (TAB_NAMEN.includes(h2) || !h2) zeigeTab(h2);
+});
+zeigeTab(TAB_NAMEN.includes(startHash) ? startHash : "uebersicht");
+
+/* ---------- Antwort-Kopierfeld + Toast ---------- */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("zeigen");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("zeigen"), 3500);
+}
+
+async function kopieren(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (_) {}
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove(); return ok;
+  } catch (_) { return false; }
+}
+
+/* ---------- Detail-Overlay (Volltexte) ---------- */
+const overlay = document.getElementById("overlay");
+const ovinhalt = document.getElementById("ovinhalt");
+
+function overlayZu() { overlay.hidden = true; ovinhalt.innerHTML = ""; }
+
+async function zeigeDetail(id) {
+  overlay.hidden = false;
+  ovinhalt.innerHTML = `<p class="sub">Lade Volltext …</p>`;
+  try {
+    const res = await fetch(DATEN_URL + "&detail=content:" + encodeURIComponent(id));
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || `Status ${res.status}`);
+    const x = body.detail;
+    ovinhalt.innerHTML = `<p class="eyebrow">${esc(x.type)}${x.channel ? " · " + esc(x.channel) : ""}</p>
+      <h3>${esc(x.title)}</h3>
+      <p class="sub"><span class="pill">${esc(x.status)}</span> · angelegt ${fmtTag(x.created_at)}${
+        x.updated_at && x.updated_at !== x.created_at ? ` · geändert ${fmtTag(x.updated_at)}` : ""}</p>
+      <div class="volltext">${esc(x.body ?? "(kein Text gespeichert)")}</div>`;
+  } catch (e) {
+    ovinhalt.innerHTML = `<h3>Text konnte nicht geladen werden</h3><p class="sub">${esc(e.message)}</p>`;
+  }
+}
+
+document.getElementById("ovzu").addEventListener("click", overlayZu);
+overlay.addEventListener("click", (ev) => { if (ev.target === overlay) overlayZu(); });
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !overlay.hidden) overlayZu(); });
+
+document.addEventListener("click", async (ev) => {
+  const goto = ev.target.closest(".ampel[data-goto]");
+  if (goto) { location.hash = goto.dataset.goto; return; }
+  const detail = ev.target.closest("button[data-detail]");
+  if (detail) { zeigeDetail(detail.dataset.detail); return; }
+  const btn = ev.target.closest("button.antwort");
+  if (!btn) return;
+  const vorlage = `Antwort zu «${btn.dataset.topic}»: `;
+  const ok = await kopieren(vorlage);
+  toast(ok
+    ? "Kopiert — im Manager-Chat einfügen und Antwort ergänzen"
+    : `Kopieren nicht möglich — tippe im Manager-Chat: ${vorlage}…`);
+});
+
+/* ---------- Laden ---------- */
+async function laden() {
+  const fehler = document.getElementById("fehler");
+  try {
+    const res = await fetch(DATEN_URL);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `Server antwortete mit Status ${res.status}.`);
+    }
+    fehler.style.display = "none";
+    render(await res.json());
+  } catch (e) {
+    fehler.style.display = "block";
+    fehler.innerHTML = `<strong>Daten konnten nicht geladen werden.</strong><br>${esc(e.message)}<br>
+      <span class="sub">Prüfe die Internet-Verbindung. Falls «Zugriff verweigert» erscheint, stimmt der Schlüssel in dieser Datei nicht mehr.</span>`;
+    document.getElementById("stand").textContent = "Keine Verbindung.";
+  }
+}
+
+laden();
+setInterval(laden, 5 * 60 * 1000);
+</script>
+</body>
+</html>

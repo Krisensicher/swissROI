@@ -1,6 +1,6 @@
 ---
 name: heartbeat
-description: Täglicher Arbeits-Takt der KI-Agenten-Agentur — prüft die aktiven Ziele, lässt die Spezial-Agents daran weiterarbeiten und protokolliert einen kurzen Ergebnis-Report. Ohne aktive Ziele bricht er sofort tokensparend ab. Läuft automatisch täglich um 07:00 Schweizer Zeit, manuell jederzeit mit /heartbeat.
+description: Täglicher Arbeits-Takt der KI-Agenten-Agentur — prüft die aktiven Ziele, lässt die Spezial-Agents daran weiterarbeiten und protokolliert einen kurzen Ergebnis-Report. Ohne aktive Ziele/Aufgaben läuft stattdessen ein kurzer, tokensparender Setup-Check mit Optimierungsvorschlägen. Läuft automatisch täglich um 04:00 Schweizer Zeit, manuell jederzeit mit /heartbeat.
 ---
 
 # Arbeits-Takt (Heartbeat)
@@ -20,7 +20,26 @@ select
      and started_at < now() - interval '2 hours') as haenger;
 ```
 
-**Abbruchregel:** Sind `ziele = 0` und `haenger = 0` → Mini-Report in `heartbeat_reports` upserten (content: «Keine aktiven Ziele — nichts zu tun», Zahlen 0) und **sofort beenden**. Keine Agents starten, keine langen Analysen. Das ist der Normalfall-Spar-Modus.
+**Leerlauf-Regel:** Sind `ziele = 0` und `haenger = 0` (oder Ziele vorhanden, aber `aufgaben = 0` und nichts zu planen) → **kein** Arbeits-Delegat, stattdessen der billige **Setup-Check** (Schritt 1b), dann Report und Ende.
+
+## Schritt 1b — Setup-Check (nur im Leerlauf, ohne Agent-Delegate)
+
+Alles direkt per SQL/Tools, kein Spezial-Agent:
+
+1. **Dashboard-Test:** per `extensions.http_get` aus Postgres die Edge Function `dashboard` aufrufen — mit gültigem Schlüssel aus `settings` muss Status 200 kommen, ohne Schlüssel 401. Abweichung = Störung → in den Report.
+2. **Testabfrage:** Zeilenzahlen der Kerntabellen (`goals`, `tasks`, `agent_runs`, `decisions`, `content_items`, `seo_keywords`, `heartbeat_reports`) — prüft DB-Zugriff und liefert Bestandsübersicht.
+3. **Advisors:** `get_advisors` (security) — neue Warnungen kurz einordnen.
+4. **1–3 Optimierungsvorschläge** ableiten (z. B. hängende runs aufräumen, alte Entwürfe in `content_items`, fehlende Freigaben, Advisor-Funde) und in den Report schreiben. Nur beobachten und vorschlagen — nichts löschen, nichts ändern.
+
+## Schritt 1c — Wöchentliche Qualitätskontrolle (nur montags)
+
+Ist heute Montag (Europe/Zurich): Zusätzlich zu Schritt 2 einen **unabhängigen
+Kritiker-Review** delegieren (Agent-Tool, `subagent_type: "claude"`, `model: "opus"` —
+bewusst ein anderes Modell als die Erbauer): kritische Prüfung der aktuell wichtigsten
+Website(s) und des Setups (Conversion, SEO-Substanz, Recht, Content, blinde Flecken).
+Die Top-Funde des Kritikers werden UNGEFILTERT als offene `decisions`-Zeile hinterlegt
+(der Nutzer sieht das Original-Urteil im Dashboard — nicht die Manager-Interpretation);
+umsetzbare Funde zusätzlich als Aufgaben ins passende Ziel. Zählt als 1 der max. 3 Delegate.
 
 ## Schritt 2 — Arbeiten (nur wenn aktive Ziele existieren)
 

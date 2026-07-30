@@ -23,7 +23,15 @@ Sprache: Deutsch (Schweiz — «ss» statt «ß»). Nutzer: admin@krisensicher.c
 
 Zu Websites: Live-Schaltung = Merge auf den Produktions-Branch = Publikation → braucht Nutzer-Freigabe. Fremde Website-Repos müssen vom Nutzer zur Session hinzugefügt werden.
 
+**Pflichtlektüre für alle Website-/SEO-/Content-Aufträge: `docs/geschaeftsmodell.md`** — Leadgen-Modell, Leitplanken (Ehrlichkeit!, 30-Min-Einzugsgebiete, Kannibalisierungs-Regeln, AI-SEO-Standard), Nischen-Pipeline. Der Manager gibt sie jedem betroffenen Delegat explizit mit.
+
+**Ebenfalls Pflichtlektüre: `docs/livegang-standard.md`** — verbindliche Parameter je Seite (Keywords pro Seite, Ratgeber-Mengen, Textumfang, interne Verlinkung, Backlink-Erwartung), die harten Livegang-Bedingungen (rechtlich, technisch, Lead-Annahme), Messrhythmus nach dem Livegang und die Abbruch-Gates M3/M6/M9/M12. Die Gates werden am Gate nicht neu verhandelt.
+
 Unabhängige Aufgaben parallel starten (mehrere Agent-Aufrufe in einem Block). Ergebnisse der Agents fasst du für den Nutzer zusammen — Agents liefern Rohdaten, du lieferst die Antwort.
+
+**Bewertungsschema (Nutzer-Wunsch):** Abgeschlossene Werke (Websites, Analysen, grössere Deliverables) werden dem Nutzer immer mit einer Bewertung der relevantesten Dimensionen präsentiert — je **Note 1–10** mit einem Begründungssatz plus Gesamtnote.
+
+**Vorschau-Pflicht (Nutzer-Wunsch):** Jede neu gebaute oder wesentlich geänderte Website wird dem Nutzer **sofort als klickbare Vorschau** präsentiert (Artifact aus dem gebauten dist/, eine Datei mit Hash-Router — Muster: scratchpad preview-build), nicht nur als Screenshot. Bestehende Vorschau-Artifacts beim selben Werk aktualisieren statt neue URLs zu erzeugen.
 
 ## Supabase (Projekt-ID: `ahrammvkqgpmagyfggmi`)
 
@@ -45,10 +53,16 @@ Supabase-Tools bei Bedarf via ToolSearch laden (`mcp__Supabase__execute_sql` etc
 Das System arbeitet **zielgesteuert**: Der Nutzer gibt Ziele vor, du zerlegst sie in Aufgaben und die Agents arbeiten sie ab.
 
 - Nennt der Nutzer ein Ziel («Neues Ziel: …»): Zeile in `goals` anlegen, in 3–7 Aufgaben zerlegen (`tasks`, je mit zuständigem Agent), kurz bestätigen.
-- Der tägliche Arbeits-Takt (07:00, `/heartbeat`) arbeitet die wichtigsten offenen Aufgaben automatisch ab — max. 3 Delegate pro Takt, ohne aktive Ziele bricht er sofort ab.
-- Fortschritt und Wissen sind jederzeit im **Live-Dashboard** sichtbar (Supabase Edge Function `dashboard`; Adresse mit Schlüssel steht in `settings.dashboard_key` — Schlüssel niemals committen).
+- Der tägliche Arbeits-Takt (04:00, `/heartbeat`) arbeitet die wichtigsten offenen Aufgaben automatisch ab — max. 3 Delegate pro Takt; ohne aktive Ziele/Aufgaben läuft stattdessen ein kurzer Setup-Check mit Optimierungsvorschlägen.
+- Fortschritt und Wissen sind jederzeit im **Live-Dashboard** sichtbar: lokale Viewer-Datei beim Nutzer (Vorlage: `docs/dashboard-viewer.html`), die ihre Daten von der Edge Function `dashboard` als JSON holt (Schlüssel steht in `settings.dashboard_key` — niemals committen). Details: `docs/betrieb.md`.
 
 ## Token-Effizienz
+
+**Einfachheits-Check vor grösseren Bauten (Nutzer-Wunsch):** Bevor der Manager ein grösseres
+Werk (neue Struktur, Schema-Änderung, mehrstufiger Bau) beauftragt, lässt er den Plan von
+einem kompakten Prüf-Agent auf einfachere/tokensparendere Alternativen gegenchecken
+(kleines Modell, enger Auftrag, Antwort in Stichpunkten). Erkenntnis wird im Second Brain
+(`agent_runs.result_summary`) festgehalten. Triviale Aufgaben brauchen keinen Check.
 
 Maximale Ergebnisse, minimaler Verbrauch:
 
@@ -56,6 +70,13 @@ Maximale Ergebnisse, minimaler Verbrauch:
 2. **Eng delegieren:** Agents bekommen einen präzisen Auftrag inkl. vorhandener Daten — nicht «recherchier mal alles».
 3. **Kein Leerlauf:** Ohne aktive Ziele keine Agent-Läufe. Status-Fragen beantwortest du selbst per SQL statt einen Agent zu starten; für die reine Übersicht auf das Live-Dashboard verweisen (kostet null Tokens).
 4. **Kleine Modelle für Mechanik:** Für rein mechanische Delegate (Daten kopieren, formatieren) beim Agent-Tool `model: "haiku"` setzen.
+5. **Supabase-Aufrufe bündeln (Pflicht):** Jede Freigabe-Nachfrage beim Nutzer kostet Zeit.
+   Darum pro Agent-Lauf **maximal 1–2 `execute_sql`-Aufrufe**: alle Lese-Abfragen in eine
+   einzige Multi-Query packen (mehrere SELECTs via UNION/JSON oder Semikolon-getrennt),
+   alle Schreib-Operationen (INSERTs/UPDATEs) am Ende des Laufs in einem einzigen
+   Multi-Statement-Aufruf. Der Manager bündelt seine Protokoll-Updates ebenso — Lauf-Start
+   und Task-Status in einem Aufruf, Abschluss-Updates gesammelt in einem Aufruf.
+6. **Semrush-Kontingent schonen:** Jede Semrush-Abfrage kostet API-Units (begrenztes Monats-Kontingent). Vor jeder Abfrage `seo_keywords` prüfen — Daten jünger als ~30 Tage nicht neu ziehen. Abfragen bündeln, `display_limit` moderat halten (30–50), keine explorativen Breitband-Abfragen ohne konkreten Auftrag. Jeder Semrush-Lauf wird im `result_summary` mit ungefährer Abfrage-Anzahl protokolliert.
 
 ## Token-Protokoll
 
@@ -79,7 +100,7 @@ Content wird immer erst als `entwurf` in `content_items` gespeichert; `publizier
 
 ## Arbeits-Takt (Heartbeat)
 
-Täglich 07:00 Schweizer Zeit über eine geplante Routine (frische Session, führt `/heartbeat` aus): prüft aktive Ziele, arbeitet die wichtigsten Aufgaben ab, schreibt einen Kurz-Report. Ohne aktive Ziele: sofortiger Spar-Abbruch. Manuell jederzeit mit `/heartbeat`. Details: `docs/betrieb.md`.
+Täglich 04:00 Schweizer Zeit über eine geplante Routine (frische Session, führt `/heartbeat` aus): prüft aktive Ziele, arbeitet die wichtigsten Aufgaben ab, schreibt einen Kurz-Report. Ohne aktive Ziele/Aufgaben: kurzer Setup-Check (Dashboard-Test, Testabfrage, Advisors) mit 1–3 Optimierungsvorschlägen statt Leerlauf. Manuell jederzeit mit `/heartbeat`. Details: `docs/betrieb.md`.
 
 ## Git
 
